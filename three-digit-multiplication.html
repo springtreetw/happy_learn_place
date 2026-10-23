@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>三位數乘以一位數填空挑戰</title>
+<style>
+:root{--ink:#253044;--muted:#667085;--line:#d9e0ea;--bg:#f3f6fb;--blue:#3569d4;--bluebg:#eaf1ff;--green:#19734b;--greenbg:#e7f7ef;--red:#b42318;--redbg:#fff0ee}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC","Microsoft JhengHei",sans-serif}
+main{max-width:760px;margin:0 auto;padding:22px 15px 40px}.menu-button{display:inline-block;white-space:nowrap;text-decoration:none;font:inherit;border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-weight:700;background:#fff;color:var(--ink);font-size:13px}.menu-button:hover{background:#f4f7fb}header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:18px}
+h1{font-size:clamp(22px,5vw,31px);margin:0 0 5px}.subtitle{color:var(--muted);font-size:14px;line-height:1.6}
+.score{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 13px;text-align:center;min-width:84px}.score strong{display:block;font-size:22px;color:var(--blue)}.score span{font-size:12px;color:var(--muted)}
+.progress{height:8px;background:#e1e7f0;border-radius:99px;overflow:hidden;margin:15px 0 18px}.bar{height:100%;width:0;background:var(--blue);transition:width .2s}
+.panel{background:#fff;border:1px solid var(--line);border-radius:20px;padding:clamp(17px,4vw,28px);box-shadow:0 5px 18px #22334b0b}
+.landing{text-align:center;padding:clamp(22px,6vw,42px);margin-bottom:18px}.heroicon{width:76px;height:76px;border-radius:22px;background:var(--bluebg);color:var(--blue);display:grid;place-items:center;font-size:38px;margin:0 auto 18px}
+.landing h2{font-size:clamp(25px,6vw,34px);margin:0 0 10px}.landing p{color:var(--muted);line-height:1.8;margin:8px auto;max-width:500px}
+.featuregrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:22px 0}.feature{background:#f4f7fb;border-radius:13px;padding:13px 8px;font-size:13px;color:#475467}.feature strong{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}.pill{display:inline-block;background:var(--bluebg);color:var(--blue);font-weight:700;border-radius:99px;padding:6px 11px;font-size:13px}.qnum{font-size:14px;color:var(--muted)}
+.timerline{display:flex;justify-content:space-between;gap:10px;align-items:center;margin:0 0 18px;background:#f4f7fb;border-radius:12px;padding:10px 13px;font-size:14px;flex-wrap:wrap}.timerline strong{font-variant-numeric:tabular-nums;font-size:18px;color:var(--blue)}
+.instruction{text-align:center;color:var(--muted);font-size:14px;margin-bottom:15px}.equation{width:min(100%,360px);margin:0 auto 18px}
+.mathrow{display:grid;grid-template-columns:38px repeat(4,minmax(38px,1fr));gap:7px;align-items:center;margin:10px 0}.sign{font-size:25px;text-align:center;font-weight:700;line-height:1;color:var(--ink)}
+.digit{height:53px;min-width:0;width:100%;border:1.5px solid var(--line);border-radius:10px;text-align:center;font-size:25px;font-weight:650;color:var(--ink);background:#fff;outline:none}
+.digit.blank{border:2px dashed #7b9ce8;background:#f5f8ff;color:var(--blue)}.digit:focus{border-color:var(--blue);box-shadow:0 0 0 3px #3569d422}.digit.fixed{background:#f6f8fb;color:#364152}
+.rule{border:0;border-top:3px solid var(--ink);margin:13px 0 12px 45px}
+.feedback{border-radius:12px;padding:13px 14px;margin-top:14px;font-weight:600;line-height:1.6}.good{background:var(--greenbg);color:var(--green)}.bad{background:var(--redbg);color:var(--red)}.neutral{background:#f4f7fb;color:var(--ink)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}.secondary-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+button{font:inherit;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer;background:#fff;color:var(--ink)}button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}button:disabled{opacity:.4;cursor:not-allowed}.secondary-actions button{flex:1;font-size:14px;padding:10px}
+.results{display:none;margin-top:18px}.results h2{margin:0 0 8px;font-size:22px}.summarygrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:15px 0}.metric{background:#f4f7fb;border-radius:12px;padding:13px 8px;text-align:center}.metric strong{display:block;font-size:clamp(20px,4vw,27px);color:var(--blue)}.metric span{font-size:12px;color:var(--muted)}
+.wronglist{margin-top:18px}.wronglist h3{margin:0 0 8px;font-size:17px}.wronglist ol{padding-left:25px;line-height:1.8}.wronglist li{padding:3px 0;border-bottom:1px solid #edf0f5}.emptywrong{color:var(--green);background:var(--greenbg);padding:12px;border-radius:10px}
+.tips{margin-top:18px;padding:16px 18px}.tips h2{font-size:16px;margin:0 0 8px}.tips p{font-size:14px;line-height:1.75;margin:5px 0;color:#4b5565}
+.footer{font-size:12px;color:var(--muted);text-align:center;margin-top:18px}.hidden{display:none!important}
+@media(max-width:430px){.featuregrid{grid-template-columns:1fr}.feature{display:flex;justify-content:center;gap:8px}.feature strong{margin:0}.mathrow{gap:5px;grid-template-columns:30px repeat(4,minmax(0,1fr))}.digit{height:48px;font-size:22px}.sign{font-size:22px}.panel{padding:16px}.summarygrid{grid-template-columns:1fr 1fr}.summarygrid .metric:last-child{grid-column:1/-1}}
+</style>
+<link rel="stylesheet" href="practice-exercises.css">
+</head>
+<body>
+<header class="site-header"><a class="site-brand" href="index.html"><span class="site-brand-mark" aria-hidden="true">🎡</span><span>學習樂園</span></a><div class="site-links"><a class="menu-button" href="practice.html">練習園地</a></div><div class="account-wallet" aria-live="polite"><span>目前金幣</span><strong id="coins">0</strong><span>🪙</span><span id="testModeTools" hidden><span class="test-badge">測試模式</span></span></div></header>
+<main>
+<header><div><h1>三位數乘以一位數填空</h1><div class="subtitle">50 題隨機挑戰・每次重新開始都會產生新題目</div></div><div class="score"><strong id="score">0 / 50</strong><span>已答對題數</span></div></header>
+<section class="panel landing" id="startScreen">
+ <div class="heroicon">✖</div><h2>乘法填空挑戰</h2>
+ <p>每次開始隨機產生 50 題三位數乘以一位數的直式填空，答案可以是三位數或四位數。</p>
+ <div class="featuregrid"><div class="feature"><strong>50 題</strong>隨機乘法題</div><div class="feature"><strong>位值驗證</strong>每欄最多一個空格</div><div class="feature"><strong>錯題統計</strong>完成後列出錯題</div></div>
+ <p>必須填完所有空格才能確認；答錯後留在本題修正。首次答對本次暫得 10 金幣，曾答錯後答對本次暫得 1 金幣；放棄本題會從本次暫存金額扣 5，最低為 0。完成 50 題才會入帳。</p>
+ <button id="startButton" class="primary" style="width:100%;max-width:300px;margin-top:10px">開始挑戰 →</button>
+</section>
+<div class="progress hidden" id="progressArea"><div class="bar" id="bar"></div></div>
+<section class="panel hidden" id="quizCard">
+ <div class="topline"><span class="pill">乘法</span><span class="qnum" id="qnum">第 1 / 50 題</span><button class="menu-button abandon-test" id="abandonQuiz">放棄測驗</button></div>
+ <div class="timerline"><div class="timer-companion"><img id="practiceCompanion" alt="目前展示的夥伴"><span id="practiceCompanionName"></span></div><span>本題時間 <strong id="questionTimer">00:00</strong></span><span>總計 <strong id="totalTimer">00:00</strong></span><span>本次金幣 <strong id="pendingCoinDisplay">0</strong> 🪙</span></div>
+ <div class="instruction">點選藍色虛線空格，填入一個數字</div>
+ <div class="equation" id="equation"></div><div id="feedback" aria-live="polite"></div>
+ <div class="actions"><button id="check" class="primary" disabled>確認答案</button><button id="next" disabled>下一題 →</button></div>
+ <div class="secondary-actions"><button id="showAnswer">放棄本題（本次金幣 -5）</button><button id="clear">清除本題</button></div>
+</section>
+<section class="panel results" id="results">
+ <h2>挑戰完成！</h2><p id="resultMessage"></p>
+ <div class="summarygrid"><div class="metric"><strong id="finalCorrect">0 / 50</strong><span>答對題數</span></div><div class="metric"><strong id="finalWrong">0 題</strong><span>曾經答錯題數</span></div><div class="metric"><strong id="finalAbandoned">0 題</strong><span>放棄題數</span></div><div class="metric"><strong id="finalTime">00:00</strong><span>總作答時間</span></div></div>
+ <div class="wronglist"><h3>錯題列表</h3><div id="wrongList"></div></div>
+ <div class="actions"><button id="downloadCsv" class="primary">匯出作答紀錄 CSV</button><button id="restart">再挑戰一次 ↻</button></div>
+</section>
+<section class="panel tips" id="tips"><h2>作答規則</h2>
+ <p>1. 被乘數是三位數，乘數是一位數，答案是三位數或四位數。</p>
+ <p>2. 逐欄對齊檢查：百位、十位、個位及答案可能有的千位，每欄最多一個空格；乘數也算在個位欄。</p>
+ <p>3. 每列至少一個空格。答案是四位數時，題目也可能有四個未知數；所有題目都須通過位值限制與唯一解驗證才會顯示。</p>
+ <p>4. 錯題按「曾經答錯」計算，同一題多次答錯只列一次。</p>
+ <p>5. 答對首次暫得 10 金幣；曾答錯後答對暫得 1 金幣。放棄單題會從本次暫存金額扣 5，最低為 0。</p><p>6. 完成 50 題後才將本次剩餘金幣加入資產；確認放棄測驗則本次金幣全部作廢。</p>
+</section>
+<dialog class="confirm-dialog" id="abandonDialog" aria-labelledby="abandonTitle"><form method="dialog"><span class="dialog-icon" aria-hidden="true">🎡</span><h2 id="abandonTitle">確定放棄本次測驗？</h2><p>目前累積的 <strong id="abandonCoinAmount">0</strong> 枚金幣將全部作廢，不會加入資產。已完成進度也會清除。</p><div class="dialog-actions"><button value="cancel">繼續作答</button><button class="primary danger-button" id="confirmAbandon" value="confirm">放棄測驗</button></div></form></dialog>
+<dialog class="confirm-dialog" id="abandonQuestionDialog" aria-labelledby="abandonQuestionTitle"><form method="dialog"><span class="dialog-icon" aria-hidden="true">🪙</span><h2 id="abandonQuestionTitle">確定放棄本題？</h2><p>本次測驗暫存金額將扣除 5 枚（最低為 0），並顯示正確答案。</p><div class="dialog-actions"><button value="cancel">繼續作答</button><button class="primary danger-button" id="confirmAbandonQuestion" value="confirm">確認放棄本題</button></div></form></dialog>
+<div class="footer">數學練習園地 · 題目於每次開始時隨機產生</div>
+</main>
+<script src="app-config.js"></script><script src="rarity.js"></script><script src="gacha-core.js"></script><script src="app.js"></script>
+<script>
+"use strict";
+const TOTAL=50,$=id=>document.getElementById(id),GAME=window.SHIBA_GAME,PRACTICE_ID="three-digit-multiplication";
+let questions=[],current=0,totalSeconds=0,questionSeconds=0,timerHandle=null,started=false,finished=false,correctCount=0,challengeId=null,pendingCoins=0,settled=false;
+function saveProgress(){if(!challengeId)return {ok:false,reason:"no-session"};return GAME.savePracticeProgress(PRACTICE_ID,{version:2,challengeId,questions,current,totalSeconds,questionSeconds,started,finished,correctCount,pendingCoins,settled})}
+function newChallengeId(){return `three-digit-${Date.now()}-${Math.random().toString(36).slice(2,10)}`}
+function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+function digits(n){return String(n).split("").map(Number)}
+function formatTime(s){return `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`}
+function renderCompanion(){const companion=GAME.getDisplayCharacter();$("practiceCompanion").src=`assets/shiba_${String(companion.id).padStart(2,"0")}.png`;$("practiceCompanion").alt=`目前展示的夥伴：${companion.name}`;const name=$("practiceCompanionName");name.textContent=companion.name;name.className=`rarity-label rarity-${companion.rarity}`}
+function renderPendingCoins(){$("pendingCoinDisplay").textContent=String(pendingCoins)}
+function columnsFor(rows){
+  // rows are left-padded only for layout; arithmetic positions are right-aligned.
+  const width=Math.max(4,...rows.map(r=>r.length));
+  return rows.map(r=>Array(width-r.length).fill(null).concat(r));
+}
+function validMask(rows,mask){
+  const width=rows[2].length; // answer length is 3 or 4
+  const allRows=rows.map(r=>r.slice());
+  const maxWidth=Math.max(4,...rows.map(r=>r.length));
+  const padded=allRows.map(r=>Array(maxWidth-r.length).fill(null).concat(r));
+  const paddedMask=mask.map((r,i)=>Array(maxWidth-r.length).fill(false).concat(r));
+  // Any column can have at most one blank among the three displayed rows.
+  for(let c=0;c<maxWidth;c++){
+    let blanks=0;
+    for(let r=0;r<3;r++)if(paddedMask[r][c])blanks++;
+    if(blanks>1)return false;
+  }
+  // Every displayed row must contain at least one blank.
+  if(paddedMask.some(r=>!r.some(Boolean)))return false;
+  // A hundreds digit may be blank in either the multiplicand or the product.
+  // The unique-solution arithmetic validation below rejects leading zeroes.
+  // If the multiplier is blank, it's the only blank in the units column.
+  return true;
+}
+function candidateMask(rows){
+  const maxWidth=Math.max(4,...rows.map(r=>r.length));
+  const padded=rows.map(r=>Array(maxWidth-r.length).fill(null).concat(r));
+
+  // For a four-digit product, sometimes create four blanks:
+  // one in the multiplicand, one in the multiplier's units column,
+  // and two in the product (including its thousands digit).
+  // The two product blanks must occupy different columns from the multiplicand blank.
+  if(rows[2].length===4 && Math.random()<0.5){
+    const mask=padded.map(r=>r.map(()=>false));
+    const multiplicandCol=Math.random()<0.5?1:2; // hundreds or tens; not units
+    const productExtraCol=multiplicandCol===1?2:1;
+    mask[0][multiplicandCol]=true;
+    mask[1][maxWidth-1]=true;
+    mask[2][0]=true; // thousands digit
+    mask[2][productExtraCol]=true;
+    const trimmed=mask.map((r,i)=>r.slice(maxWidth-rows[i].length));
+    if(validMask(rows,trimmed))return trimmed;
+  }
+
+  // Otherwise create three blanks, one in each row, in distinct columns.
+  for(let attempt=0;attempt<200;attempt++){
+    const cols=[...Array(maxWidth).keys()];
+    const chosen=cols.sort(()=>Math.random()-.5).slice(0,3);
+    if(chosen.length<3)continue;
+    const assignment=[0,1,2];
+    assignment.sort(()=>Math.random()-.5);
+    const mask=padded.map(r=>r.map(()=>false));
+    let ok=true;
+    for(let i=0;i<3;i++){
+      const row=assignment[i],col=chosen[i];
+      if(padded[row][col]===null){ok=false;break}
+      if(row===1 && col!==maxWidth-1){ok=false;break}
+      if(row===2 && padded[row][col]===null){ok=false;break}
+      mask[row][col]=true;
+    }
+    if(!ok)continue;
+    const trimmed=mask.map((r,i)=>r.slice(maxWidth-rows[i].length));
+    if(validMask(rows,trimmed))return trimmed;
+  }
+  return null;
+}
+function countSolutions(rows,mask){
+  // Exact brute-force enumeration of the hidden digits. Each blank is a decimal digit.
+  const cells=[];
+  rows.forEach((r,ri)=>r.forEach((d,ci)=>{if(mask[ri][ci])cells.push([ri,ci])}));
+  if(cells.length===0||cells.length>4)return 0;
+  const vals=rows.map(r=>r.slice());let solutions=0;
+  function visit(i){
+    if(solutions>1)return;
+    if(i===cells.length){
+      const a=Number(vals[0].join("")),b=Number(vals[1].join("")),c=Number(vals[2].join(""));
+      if(a>=100&&a<=999&&b>=1&&b<=9&&a*b===c&&c>=100&&c<=9999)solutions++;
+      return;
+    }
+    const [ri,ci]=cells[i];
+    for(let d=0;d<=9;d++){
+      if(ci===0&&(ri===0||ri===2)&&d===0)continue;
+      vals[ri][ci]=d;visit(i+1);
+      if(solutions>1)return;
+    }
+    vals[ri][ci]=rows[ri][ci];
+  }
+  visit(0);return solutions;
+}
+function generateQuestion(){
+  for(let tries=0;tries<20000;tries++){
+    const a=randInt(100,999),b=randInt(1,9),c=a*b;
+    if(c<100||c>9999)continue;
+    const rows=[digits(a),digits(b),digits(c)];
+    const mask=candidateMask(rows);
+    if(!mask)continue;
+    if(!validMask(rows,mask))continue;
+    if(countSolutions(rows,mask)!==1)continue;
+    return {a,b,c,rows,mask,wrongEver:false,abandoned:false,solved:false,revealed:false,seconds:0};
+  }
+  // The generator should rarely reach this; a fixed verified pattern is used as a safe fallback.
+  const a=123,b=4,c=492,rows=[digits(a),digits(b),digits(c)],mask=[[false,true,false],[true],[false,false,true]];
+  return {a,b,c,rows,mask,wrongEver:false,abandoned:false,solved:false,revealed:false,seconds:0};
+}
+function generateSet(){
+  const set=[],seen=new Set();let guard=0;
+  while(set.length<TOTAL&&guard<100000){
+    guard++;const q=generateQuestion();
+    const key=`${q.a}x${q.b}:${q.mask.map(r=>r.map(Number).join("")).join("/")}`;
+    if(!seen.has(key)){seen.add(key);set.push(q)}
+  }
+  while(set.length<TOTAL)set.push(generateQuestion());
+  return set;
+}
+function renderQuestion(){
+  const q=questions[current];$("score").textContent=`${correctCount} / ${TOTAL}`;$("qnum").textContent=`第 ${current+1} / ${TOTAL} 題`;
+  $("bar").style.width=`${current/TOTAL*100}%`;$("questionTimer").textContent=formatTime(questionSeconds);$("feedback").innerHTML="";
+  $("check").disabled=true;$("next").disabled=true;$("showAnswer").disabled=false;$("equation").innerHTML="";
+  const maxWidth=Math.max(4,...q.rows.map(r=>r.length));
+  q.rows.forEach((rowData,ri)=>{
+    const row=document.createElement("div");row.className="mathrow";
+    const sign=document.createElement("div");sign.className="sign";sign.textContent=ri===1?"×":"";row.appendChild(sign);
+    const pad=maxWidth-rowData.length;
+    for(let col=0;col<maxWidth;col++){
+      if(col<pad){const spacer=document.createElement("div");spacer.style.height="53px";row.appendChild(spacer);continue}
+      const ci=col-pad,digit=rowData[ci],input=document.createElement("input");
+      input.className="digit";input.inputMode="numeric";input.autocomplete="off";input.maxLength=1;
+      input.setAttribute("aria-label",`${["被乘數","乘數","答案"][ri]}第${rowData.length-ci}位`);
+      if(q.mask[ri][ci]){
+        input.classList.add("blank");input.type="text";input.dataset.row=ri;input.dataset.col=ci;
+        input.value=q.answers?.[ri]?.[ci]||"";
+        input.addEventListener("input",()=>{
+          input.value=input.value.replace(/[^0-9]/g,"").slice(-1);
+          if(!q.answers)q.answers=q.rows.map(r=>r.map(()=> ""));
+          q.answers[ri][ci]=input.value;$("feedback").innerHTML="";updateCheckButton();saveProgress();
+        });
+      }else{input.classList.add("fixed");input.value=digit;input.disabled=true;input.tabIndex=-1}
+      row.appendChild(input);
+    }
+    $("equation").appendChild(row);
+    if(ri===1){const rule=document.createElement("hr");rule.className="rule";$("equation").appendChild(rule)}
+  });
+  updateCheckButton();
+  if(q.solved||q.abandoned){
+    [...$("equation").querySelectorAll("input.blank")].forEach(input=>input.disabled=true);
+    $("next").disabled=false;$("check").disabled=true;$("showAnswer").disabled=true;
+    $("feedback").innerHTML=q.abandoned?'<div class="feedback bad">本題已放棄，答案已顯示。</div>':`<div class="feedback good">答對了！獲得 ${q.rewardAmount||0} 金幣，繼續下一題吧。</div>`;
+  }
+}
+function updateCheckButton(){
+  const blanks=[...$("equation").querySelectorAll("input.blank")];
+  $("check").disabled=blanks.some(i=>!i.value.trim())||questions[current].solved;
+}
+function checkAnswer(){
+  if($("check").disabled)return;
+  const q=questions[current],blanks=[...$("equation").querySelectorAll("input.blank")];
+  const wrong=blanks.filter(i=>Number(i.value)!==q.rows[Number(i.dataset.row)][Number(i.dataset.col)]);
+  if(wrong.length){
+    q.wrongEver=true;saveProgress();$("feedback").innerHTML='<div class="feedback bad">答案還不正確，請修正後再次按「確認答案」。</div>';
+    $("check").disabled=true;wrong[0].focus();wrong[0].select();return;
+  }
+  const reward=q.wrongEver?1:10;
+  if(!q.solved){q.solved=true;q.rewardAmount=reward;pendingCoins+=reward;correctCount++}saveProgress();$("score").textContent=`${correctCount} / ${TOTAL}`;
+  $("feedback").innerHTML=`<div class="feedback good">答對了！本次測驗暫得 ${reward} 金幣，完成 50 題後結算。</div>`;
+  $("check").disabled=true;$("next").disabled=false;$("showAnswer").disabled=true;blanks.forEach(i=>i.disabled=true);
+}
+function nextQuestion(){
+  if(!questions[current].solved&&!questions[current].revealed)return;questions[current].seconds=questionSeconds;
+  if(current===TOTAL-1){finishQuiz();return}current++;questionSeconds=0;renderQuestion();saveProgress();
+}
+function tick(){if(!started||finished)return;totalSeconds++;questionSeconds++;$("totalTimer").textContent=formatTime(totalSeconds);$("questionTimer").textContent=formatTime(questionSeconds);saveProgress()}
+function startQuiz(){
+  if(timerHandle)clearInterval(timerHandle);
+  challengeId=newChallengeId();questions=generateSet();current=0;totalSeconds=0;questionSeconds=0;correctCount=0;pendingCoins=0;settled=false;started=true;finished=false;saveProgress();renderPendingCoins();
+  $("startScreen").classList.add("hidden");$("results").style.display="none";$("quizCard").classList.remove("hidden");$("progressArea").classList.remove("hidden");$("tips").classList.add("hidden");
+  $("totalTimer").textContent="00:00";renderQuestion();timerHandle=setInterval(tick,1000);
+}
+function finishQuiz(){
+  questions[current].seconds=questionSeconds;
+  if(!settled){if(pendingCoins>0){const award=GAME.awardCoins(pendingCoins,"數學練習完成結算",`${challengeId}:completion`);if(!award.ok){$("feedback").innerHTML='<div class="feedback bad">金幣結算暫時失敗，請勿關閉頁面，稍後重試。</div>';return}}settled=true}
+  finished=true;started=false;if(timerHandle)clearInterval(timerHandle);saveProgress();
+  const wrong=questions.map((q,i)=>({...q,index:i+1})).filter(q=>q.wrongEver);
+  const abandoned=questions.filter(q=>q.abandoned).length;
+  $("quizCard").classList.add("hidden");$("progressArea").classList.add("hidden");$("results").style.display="block";
+  $("finalCorrect").textContent=`${correctCount} / ${TOTAL}`;$("finalWrong").textContent=`${wrong.length} 題`;$("finalTime").textContent=formatTime(totalSeconds);
+  $("finalAbandoned").textContent=`${abandoned} 題`;
+  $("resultMessage").textContent=`你完成了 50 題，其中 ${wrong.length} 題曾經答錯、${abandoned} 題放棄。本次結算獲得 ${pendingCoins} 金幣。`;
+  const list=$("wrongList");list.innerHTML="";
+  if(!wrong.length){list.innerHTML=abandoned===TOTAL?'<div class="emptywrong neutral">本次 50 題皆已放棄，沒有作答紀錄。</div>':'<div class="emptywrong">本次沒有答錯的題目。</div>'}
+  else{
+    const ol=document.createElement("ol");
+    wrong.forEach(q=>{
+      const li=document.createElement("li");
+      li.textContent=`第 ${q.index} 題：${q.a} × ${q.b} = ${q.c}`;
+      ol.appendChild(li);
+    });
+    list.appendChild(ol);
+  }
+  $("tips").classList.remove("hidden");
+}
+function downloadCsv(){
+  const rows=[["題號","被乘數","乘數","正確答案","作答時間（秒）","是否曾經答錯","是否放棄","最後是否答對","獲得金幣"]];
+  questions.forEach((q,i)=>rows.push([i+1,q.a,q.b,q.c,q.seconds,q.wrongEver?"是":"否",q.abandoned?"是":"否",q.solved?"是":"否",q.rewardAmount||0]));
+  rows.push([],["總題數",TOTAL],["答對題數",correctCount],["曾經答錯題數",questions.filter(q=>q.wrongEver).length],["放棄題數",questions.filter(q=>q.abandoned).length],["總作答秒數",totalSeconds]);
+  const csv="\ufeff"+rows.map(row=>row.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\r\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download="三位數乘法作答紀錄.csv";a.click();URL.revokeObjectURL(url);
+}
+$("startButton").addEventListener("click",startQuiz);$("check").addEventListener("click",checkAnswer);$("next").addEventListener("click",nextQuestion);
+$("clear").addEventListener("click",()=>{
+  const q=questions[current];q.answers=q.rows.map(r=>r.map(()=> ""));
+  [...$("equation").querySelectorAll("input.blank")].forEach(i=>i.value="");$("feedback").innerHTML="";
+  updateCheckButton();saveProgress();$("equation").querySelector("input.blank")?.focus();
+});
+$("showAnswer").addEventListener("click",()=>{
+  const q=questions[current];
+  if(!q||q.solved||q.revealed)return;
+  $("abandonQuestionDialog").showModal();
+});
+$("confirmAbandonQuestion").addEventListener("click",event=>{event.preventDefault();$("abandonQuestionDialog").close();
+  const q=questions[current];if(!q||q.solved||q.revealed)return;
+  pendingCoins=Math.max(0,pendingCoins-5);q.revealed=true;q.abandoned=true;saveProgress();renderPendingCoins();
+  $("feedback").innerHTML=`<div class="feedback bad">本題已放棄；本次暫得金幣減至 ${pendingCoins} 枚。答案：${q.a} × ${q.b} = ${q.c}。</div>`;
+  $("check").disabled=true;
+  $("next").disabled=false;
+  [...$("equation").querySelectorAll("input.blank")].forEach(i=>i.disabled=true);
+  $("showAnswer").disabled=true;
+});
+$("abandonQuiz").addEventListener("click",()=>{if(!challengeId||!started)return;$("abandonCoinAmount").textContent=String(pendingCoins);$("abandonDialog").showModal()});
+$("confirmAbandon").addEventListener("click",event=>{event.preventDefault();if(timerHandle)clearInterval(timerHandle);GAME.clearPracticeProgress(PRACTICE_ID);$("abandonDialog").close();challengeId=null;questions=[];current=0;pendingCoins=0;settled=false;started=false;finished=false;correctCount=0;$("quizCard").classList.add("hidden");$("progressArea").classList.add("hidden");$("startScreen").classList.remove("hidden");$("tips").classList.remove("hidden");$("score").textContent=`0 / ${TOTAL}`;renderPendingCoins();$("totalTimer").textContent="00:00";$("questionTimer").textContent="00:00"});
+$("restart").addEventListener("click",()=>{GAME.clearPracticeProgress(PRACTICE_ID);challengeId=null;questions=[];started=false;finished=false;$("startScreen").classList.remove("hidden");$("results").style.display="none";$("tips").classList.remove("hidden");$("score").textContent=`0 / ${TOTAL}`});
+$("downloadCsv").addEventListener("click",downloadCsv);
+function restoreProgress(){
+  const saved=GAME.getPracticeProgress(PRACTICE_ID);
+  if(!saved||![1,2].includes(saved.version)||!Array.isArray(saved.questions)||saved.questions.length!==TOTAL||!Number.isInteger(saved.current)||saved.current<0||saved.current>=TOTAL)return;
+  challengeId=saved.challengeId;questions=saved.questions;current=saved.current;totalSeconds=saved.totalSeconds||0;questionSeconds=saved.questionSeconds||0;correctCount=saved.correctCount||0;started=Boolean(saved.started);finished=Boolean(saved.finished);
+  pendingCoins=saved.version===2?(saved.pendingCoins||0):0;settled=Boolean(saved.settled);renderPendingCoins();
+  if(finished){finishQuiz();return}
+  if(!started)return;
+  $("startScreen").classList.add("hidden");$("results").style.display="none";$("quizCard").classList.remove("hidden");$("progressArea").classList.remove("hidden");$("tips").classList.add("hidden");
+  $("totalTimer").textContent=formatTime(totalSeconds);renderQuestion();timerHandle=setInterval(tick,1000);
+}
+restoreProgress();
+renderCompanion();
+</script>
+</body>
+</html>
