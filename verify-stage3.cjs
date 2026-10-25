@@ -241,6 +241,8 @@ assert.match(buildConfig, /testMode:\s*true/);
 assert.match(mathHtml, /practice.html/);
 assert.match(practiceMenuHtml, /practiceList/); assert.match(practiceMenuHtml, /practice-menu.js/);
 assert.match(practiceMenuHtml, /practiceDisplayImage/); assert.match(practiceMenuHtml, /id="coins"/);
+assert.match(fs.readFileSync(path.join(root,'app.js'),'utf8'), /assets\/shiba\/shiba_\$\{pad\(id\)\}\.png/);
+for (const html of [homeHtml,galleryHtml,practiceMenuHtml]) assert.match(html,/assets\/shiba\/shiba_01\.png/);
 assert.match(practiceCss, /\.site-header/);
 assert.doesNotMatch(practiceCss, /timer-wiggle/);
 assert.match(practiceCss, /\.timer-companion img\{[^}]*animation:companion-bob/);
@@ -286,7 +288,8 @@ assert.match(shopCss, /handle-spin/); assert.match(shopCss, /capsule-drop-roll/)
 assert.doesNotMatch(galleryHtml, /柴柴轉蛋池/);
 for (const id of ['coins','gachaScene','capsuleShell','drawButton','skipButton','insufficient','resultCard','resultImage','resultName','resultRarity','resultMessage','closeResult','historyList']) assert.match(shopHtml, new RegExp(`id="${id}"`));
 for (const id of ['grid','search','count','filterCount','percent','progress','displayImage','displayName','chooseDisplay','displayButton','closeModal','overlay']) assert.match(galleryHtml, new RegExp(`id="${id}"`));
-assert.equal(fs.readdirSync(path.join(root, 'assets')).filter(file => /^shiba_\d{2}\.png$/.test(file)).length, 32);
+assert.equal(fs.readdirSync(path.join(root, 'assets','shiba')).filter(file => /^shiba_\d{2}\.png$/.test(file)).length, 32);
+assert.equal(fs.readdirSync(path.join(root, 'assets')).filter(file => /^shiba_\d{2}\.png$/.test(file)).length, 0);
 
 // Storage errors must not report a successful draw or alter the saved state.
 const failedStorage = new Map(); const storageApp = start(failedStorage);

@@ -6,7 +6,7 @@
   const RARITY = window.SHIBA_RARITY;
   const GACHA_CORE = window.SHIBA_GACHA_CORE;
   const $ = id => document.getElementById(id), pad = n => String(n).padStart(2, '0');
-  const asset = id => `assets/shiba_${pad(id)}.png`, name = id => NAMES[id - 1];
+  const asset = id => `assets/shiba/shiba_${pad(id)}.png`, name = id => NAMES[id - 1];
   const validIds = ids => [...new Set(ids.filter(id => Number.isInteger(id) && id >= 1 && id <= TOTAL))];
   const fresh = () => ({ version: 3, initialized: true, coins: TEST_MODE ? 100000 : 0, collected: [1], display: 1, drawHistory: [], awardTransactions: [], chargeTransactions: [], mathPractice: null, practiceProgress: {}, consecutiveDuplicates: 0 });
   let drawing = false, activeDraw = null, activeItem = 1, animationTimers = [], toastTimer;

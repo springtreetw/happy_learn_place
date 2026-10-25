@@ -82,7 +82,7 @@ function newChallengeId(){return `four-digit-${Date.now()}-${Math.random().toStr
 function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
 function digits4(n){return String(n).padStart(4,"0").split("").map(Number)}
 function formatTime(s){return `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`}
-function renderCompanion(){const companion=GAME.getDisplayCharacter();$("practiceCompanion").src=`assets/shiba_${String(companion.id).padStart(2,"0")}.png`;$("practiceCompanion").alt=`目前展示的夥伴：${companion.name}`;const name=$("practiceCompanionName");name.textContent=companion.name;name.className=`rarity-label rarity-${companion.rarity}`}
+function renderCompanion(){const companion=GAME.getDisplayCharacter();$("practiceCompanion").src=`assets/shiba/shiba_${String(companion.id).padStart(2,"0")}.png`;$("practiceCompanion").alt=`目前展示的夥伴：${companion.name}`;const name=$("practiceCompanionName");name.textContent=companion.name;name.className=`rarity-label rarity-${companion.rarity}`}
 function renderPendingCoins(){$("pendingCoinDisplay").textContent=pendingCoins.toLocaleString("zh-Hant")}
 function makeMask(){
   // The thousands-column blank is always in the answer row so both operands stay four-digit.
