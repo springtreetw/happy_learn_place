@@ -47,7 +47,7 @@ button{font:inherit;border:1px solid var(--line);border-radius:12px;padding:12px
 <div class="progress hidden" id="progressArea"><div class="bar" id="bar"></div></div>
 <section class="panel hidden" id="quizCard">
  <div class="topline"><span class="pill">乘法</span><span class="qnum" id="qnum">第 1 / 50 題</span><button class="menu-button abandon-test" id="abandonQuiz">放棄測驗</button></div>
- <div class="timerline"><div class="timer-companion"><img id="practiceCompanion" alt="目前展示的夥伴"><span id="practiceCompanionName"></span></div><span>本題時間 <strong id="questionTimer">00:00</strong></span><span>總計 <strong id="totalTimer">00:00</strong></span><span>本次金幣 <strong id="pendingCoinDisplay">0</strong> 🪙</span></div>
+ <div class="timerline"><div class="timer-companion"><img id="practiceCompanion" alt="目前展示的夥伴"><span id="practiceCompanionName"></span></div><span>本題時間 <strong id="questionTimer">00:00</strong></span><span>總計 <strong id="totalTimer">00:00</strong></span><span>目前金幣 <strong id="pendingCoinDisplay">0</strong> 🪙</span></div>
  <div class="instruction">點選藍色虛線空格，填入一個數字</div>
  <div class="equation" id="equation"></div><div id="feedback" aria-live="polite"></div>
  <div class="actions"><button id="check" class="primary" disabled>確認答案</button><button id="next" disabled>下一題 →</button></div>
@@ -81,7 +81,7 @@ function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
 function digits(n){return String(n).split("").map(Number)}
 function formatTime(s){return `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`}
 function renderCompanion(){const companion=GAME.getDisplayCharacter();$("practiceCompanion").src=`assets/shiba_${String(companion.id).padStart(2,"0")}.png`;$("practiceCompanion").alt=`目前展示的夥伴：${companion.name}`;const name=$("practiceCompanionName");name.textContent=companion.name;name.className=`rarity-label rarity-${companion.rarity}`}
-function renderPendingCoins(){$("pendingCoinDisplay").textContent=String(pendingCoins)}
+function renderPendingCoins(){$("pendingCoinDisplay").textContent=pendingCoins.toLocaleString("zh-Hant")}
 function columnsFor(rows){
   // rows are left-padded only for layout; arithmetic positions are right-aligned.
   const width=Math.max(4,...rows.map(r=>r.length));
@@ -244,7 +244,7 @@ function checkAnswer(){
     $("check").disabled=true;wrong[0].focus();wrong[0].select();return;
   }
   const reward=q.wrongEver?1:10;
-  if(!q.solved){q.solved=true;q.rewardAmount=reward;pendingCoins+=reward;correctCount++}saveProgress();$("score").textContent=`${correctCount} / ${TOTAL}`;
+  if(!q.solved){q.solved=true;q.rewardAmount=reward;pendingCoins+=reward;correctCount++}saveProgress();renderPendingCoins();$("score").textContent=`${correctCount} / ${TOTAL}`;
   $("feedback").innerHTML=`<div class="feedback good">答對了！本次測驗暫得 ${reward} 金幣，完成 50 題後結算。</div>`;
   $("check").disabled=true;$("next").disabled=false;$("showAnswer").disabled=true;blanks.forEach(i=>i.disabled=true);
 }
@@ -252,7 +252,7 @@ function nextQuestion(){
   if(!questions[current].solved&&!questions[current].revealed)return;questions[current].seconds=questionSeconds;
   if(current===TOTAL-1){finishQuiz();return}current++;questionSeconds=0;renderQuestion();saveProgress();
 }
-function tick(){if(!started||finished)return;totalSeconds++;questionSeconds++;$("totalTimer").textContent=formatTime(totalSeconds);$("questionTimer").textContent=formatTime(questionSeconds);saveProgress()}
+function tick(){if(!started||finished)return;totalSeconds++;questionSeconds++;$("totalTimer").textContent=formatTime(totalSeconds);$("questionTimer").textContent=formatTime(questionSeconds);renderPendingCoins();saveProgress()}
 function startQuiz(){
   if(timerHandle)clearInterval(timerHandle);
   challengeId=newChallengeId();questions=generateSet();current=0;totalSeconds=0;questionSeconds=0;correctCount=0;pendingCoins=0;settled=false;started=true;finished=false;saveProgress();renderPendingCoins();

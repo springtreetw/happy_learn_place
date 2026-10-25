@@ -258,6 +258,9 @@ for (const exerciseHtml of exercisePages) {
   assert.match(exerciseHtml, /getDisplayCharacter\(\)/);
   assert.match(exerciseHtml, /rarity-label rarity-/);
   assert.match(exerciseHtml, /name\.textContent=companion\.name/);
+  assert.match(exerciseHtml, /目前金幣 <strong id="pendingCoinDisplay"/);
+  assert.match(exerciseHtml, /pendingCoinDisplay"\)\.textContent=pendingCoins\.toLocaleString/);
+  assert.match(exerciseHtml, /pendingCoins\+=reward;correctCount\+\+\}\s*saveProgress\(\);renderPendingCoins\(\)/);
   assert.match(exerciseHtml, /savePracticeProgress/);
   assert.match(exerciseHtml, /放棄題數/);
   assert.match(exerciseHtml, /href="practice\.html"/);
