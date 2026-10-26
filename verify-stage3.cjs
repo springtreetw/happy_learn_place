@@ -56,17 +56,29 @@ for (const [n, p] of [[1,61.25],[5,66.25],[10,72.5],[15,78.75],[20,85],[25,91.25
 assert.equal(core.newChance(byCount(28), 1), 97); assert.equal(core.newChance(byCount(28), 2), 98);
 assert.equal(core.draw([1], 0, () => 0).duplicate, false);
 assert.equal(core.draw([1, ...pool], 5, () => 0).duplicate, true);
-assert.equal(core.draw([1, ...pool.slice(0, 30)], 0, () => 0).duplicate, false);
+{ let i=0; const xs=[.975,0,0]; assert.equal(core.draw([1, ...pool.slice(0, 30)], 0, () => xs[i++]).duplicate, false); }
 assert.equal(core.pool().includes(1), false);
-for (const target of pool) assert.equal(core.draw([1, ...pool.filter(id => id !== target)], 0, () => 0).id, target);
+assert.equal(core.drawPity([1], () => 0).tier, 'epic');
+assert.equal(core.drawPity([1], () => .8).tier, 'legendary');
+assert.equal(core.drawPity([1, 23], () => 0).duplicate, true);
+for (const target of pool) {
+  const tier = rarity.byId[target];
+  const roll = { common: .25, rare: .65, epic: .875, legendary: .975 }[tier];
+  let i = 0; const values = [roll, 0, 0];
+  const result = core.draw([1, ...pool.filter(id => id !== target)], 0, () => values[i++]);
+  assert.equal(result.id, target);
+}
 const onlyCommon = core.draw([1, 2, ...pool.filter(id => rarity.byId[id] !== 'common')], 5, () => 0);
 assert.equal(onlyCommon.duplicate, false); assert.equal(onlyCommon.tier, 'common');
 let seed = 0x12345678;
 const seeded = () => { seed = (1664525 * seed + 1013904223) >>> 0; return seed / 0x100000000; };
-const simState = [1, 2]; let freshCount = 0, tierCounts = { common:0, rare:0, epic:0, legendary:0 };
-for (let i=0;i<50000;i++) { const d=core.draw(simState,0,seeded); if (!d.duplicate) { freshCount++; tierCounts[d.tier]++; } }
-assert.ok(Math.abs(freshCount / 50000 - 0.6125) < 0.012);
-for (const [tier, expected] of Object.entries({common:.5,rare:.3,epic:.15,legendary:.05})) assert.ok(Math.abs(tierCounts[tier] / freshCount - expected) < .012);
+const simState = [1, 2, 4, 23, 19]; let freshCount = 0, tierCounts = { common:0, rare:0, epic:0, legendary:0 }, newByTier = { common:0, rare:0, epic:0, legendary:0 };
+for (let i=0;i<100000;i++) { const d=core.draw(simState,0,seeded); tierCounts[d.tier]++; if (!d.duplicate) { freshCount++; newByTier[d.tier]++; } }
+assert.ok(Math.abs(freshCount / 100000 - 0.65) < 0.012);
+for (const [tier, expected] of Object.entries({common:.5,rare:.3,epic:.15,legendary:.05})) {
+  assert.ok(Math.abs(tierCounts[tier] / 100000 - expected) < .006);
+  assert.ok(Math.abs(newByTier[tier] / tierCounts[tier] - .65) < .025);
+}
 
 // Fresh profile and the legacy demo migration.
 const legacyDemo = new Map([['shibaGallery.stage2.v2', JSON.stringify({ collected:[1,4,9,12,18,25], display:25 })]]);
@@ -123,8 +135,41 @@ assert.equal(recovered.elements.get('resultCard').hidden, true);
 // Skip only finishes presentation.
 fresh.elements.get('skipButton').fire('click');
 assert.equal(fresh.elements.get('resultCard').hidden, false);
+assert.equal(fresh.elements.get('resultMessage').textContent, `${fresh.elements.get('resultName').textContent.split(' · ')[0]} 已加入收藏圖鑑`);
+assert.equal(fresh.elements.get('resultMessage').className, 'result-message');
 assert.equal(fresh.api.getState().drawHistory.length, 1); assert.equal(fresh.api.getState().coins, 0);
+fresh.elements.get('closeResult').fire('click');
+assert.equal(fresh.elements.get('resultCard').hidden, true, 'the Shiba result card close button hides the card');
 fresh.runTimers();
+
+// After ten consecutive non-Epic/Legendary draws, the next draw is free and visibly marked.
+const shibaPityStorage = new Map([['shibaGallery.stage3.v1', JSON.stringify({ version:3, initialized:true, coins:0, collected:[1], display:1, drawHistory:Array(9).fill({}), awardTransactions:[], chargeTransactions:[], consecutiveNoEpicPlus:9 })]]);
+const shibaPity = start(shibaPityStorage);
+assert.equal(shibaPity.elements.get('drawButton').textContent, '轉一次 · 100 金幣');
+shibaPity.api.awardCoins(100, 'pity setup', 'pity-setup');
+shibaPity.randoms.push(0, 0, 0);
+shibaPity.elements.get('drawButton').fire('click');
+assert.equal(shibaPity.api.getState().drawHistory[0].tier, 'common');
+assert.equal(shibaPity.api.getState().consecutiveNoEpicPlus, 10);
+assert.equal(shibaPity.api.getState().coins, 0);
+shibaPity.runTimers();
+assert.equal(shibaPity.elements.get('drawButton').textContent, '保底 · 免費轉');
+assert.equal(shibaPity.elements.get('drawButton').classList.contains('is-pity'), true);
+shibaPity.randoms.push(0, 0, 0);
+shibaPity.elements.get('drawButton').fire('click');
+const shibaPityRow = shibaPity.api.getState().drawHistory[0];
+assert.equal(shibaPityRow.pity, true); assert.equal(shibaPityRow.cost, 0); assert.equal(shibaPityRow.tier, 'epic');
+assert.equal(shibaPity.api.getState().coins, 0); assert.equal(shibaPity.api.getState().consecutiveNoEpicPlus, 0);
+assert.equal(shibaPity.api.getState().drawHistory.filter(row => row.pity).length, 1);
+assert.equal(start(shibaPityStorage).api.getState().drawHistory.filter(row => row.pity).length, 1);
+
+const shibaPityDuplicateStorage = new Map([['shibaGallery.stage3.v1', JSON.stringify({ version:3, initialized:true, coins:0, collected:[1,23], display:1, drawHistory:[], awardTransactions:[], chargeTransactions:[], consecutiveNoEpicPlus:10 })]]);
+const shibaPityDuplicate = start(shibaPityDuplicateStorage);
+shibaPityDuplicate.randoms.push(0, 0, 0);
+shibaPityDuplicate.elements.get('drawButton').fire('click');
+assert.equal(shibaPityDuplicate.api.getState().coins, 20);
+assert.equal(shibaPityDuplicate.api.getState().drawHistory[0].duplicate, true);
+assert.equal(shibaPityDuplicate.api.getState().drawHistory[0].cost, 0);
 
 // Re-draw from the result overlay closes the card first; payment and result persist before animation starts.
 const overlayFlow = start(new Map());
@@ -144,13 +189,14 @@ overlayFlow.elements.get('skipButton').fire('click');
 
 // A duplicate charges 100, refunds exactly 20, and only records once.
 assert.equal(fresh.api.awardCoins(100, 'test setup', 'q-2').coins, 100);
-fresh.randoms.push(0.999, 0, 0);
+fresh.randoms.push(0.1, 0.999, 0);
 fresh.elements.get('drawButton').fire('click');
 state = fresh.api.getState();
 assert.equal(state.coins, 20); assert.deepEqual(Array.from(state.collected), [1,2]);
 assert.equal(state.drawHistory.length, 2); assert.equal(state.drawHistory[0].duplicate, true); assert.equal(state.drawHistory[0].refund, 20);
 assert.equal(state.consecutiveDuplicates, 1);
 fresh.elements.get('skipButton').fire('click');
+assert.equal(fresh.elements.get('resultMessage').textContent, '重複造型返還 20 金幣');
 const reloaded = start(legacyDemo);
 assert.equal(reloaded.api.getState().coins, 20); assert.equal(reloaded.api.getState().display, 1);
 assert.equal(reloaded.api.getState().drawHistory.length, 2);
@@ -233,10 +279,15 @@ const practiceCss = fs.readFileSync(path.join(root, 'practice-exercises.css'), '
 const exercisePages = ['four-digit-add-subtract.html','three-digit-multiplication.html'].map(file => fs.readFileSync(path.join(root, file), 'utf8'));
 const buildConfig = fs.readFileSync(path.join(root, 'app-config.js'), 'utf8');
 assert.match(shopHtml, /id="gachaScene"/); assert.match(shopHtml, /id="skipButton"/); assert.match(shopHtml, /id="historyList"/); assert.match(shopHtml, /id="closeResult"/);
+assert.match(shopHtml, /id="resultMessage"[\s\S]*id="resultImage"/);
+assert.match(shopHtml, /class="result-close" id="closeResult"/);
+assert.match(shopHtml, /href="layout-alignment\.css"/);
+assert.match(fs.readFileSync(path.join(root, 'layout-alignment.css'), 'utf8'), /shop-page \.result-message/);
 assert.doesNotMatch(shopHtml, /今天會遇見|newChanceLabel|resultCoins|odds-card|oddsList|動畫中也不會重複扣款/);
 assert.doesNotMatch(shopHtml, /扭蛋出口/);
 assert.match(shopCss, /@keyframes overlay-arrive[\s\S]*?to\{[^}]*translate\(-50%,-50%\)/);
 assert.match(shopCss, /\.capsule-shell\{[^}]*width:124px;height:124px/);
+assert.match(shopCss, /\.result-overlay \.card-image img\{display:block;width:100%;height:100%;object-fit:contain;object-position:center;border-radius:0;filter:none;transform:none\}/);
 assert.match(buildConfig, /testMode:\s*true/);
 assert.match(mathHtml, /practice.html/);
 assert.match(practiceMenuHtml, /practiceList/); assert.match(practiceMenuHtml, /practice-menu.js/);
@@ -276,7 +327,7 @@ assert.match(homeHtml, /學習樂園/); assert.match(homeHtml, /homeDisplayImage
 assert.match(homeHtml, /收集夥伴/); assert.doesNotMatch(homeHtml, /收集柴柴/);
 assert.match(galleryHtml, /collection-topbar \.brand[\s\S]*?text-decoration:none/);
 assert.match(galleryHtml, /aria-label="回到學習樂園首頁"[\s\S]*?🎡[\s\S]*?學習樂園/);
-for (const destination of ['practice.html','shop.html','collection.html']) assert.match(homeHtml, new RegExp(`href="${destination}"`));
+for (const destination of ['practice.html','gacha-menu.html','collection-menu.html']) assert.match(homeHtml, new RegExp(`href="${destination}"`));
 assert.match(shopCss, /\.machine-body\{background:linear-gradient\(105deg,#ffe1c3/);
 assert.match(shopHtml, /class="legendary-rainbow"/);
 assert.match(shopCss, /\.gacha-scene\.is-running\[data-rarity=legendary\]\[data-phase=drop\] \.legendary-rainbow/);

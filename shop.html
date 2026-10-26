@@ -23,10 +23,11 @@
     @media(max-width:540px){.page-nav{gap:5px}.nav-link{padding:8px 10px;font-size:12px}}
   </style>
   <link rel="stylesheet" href="shop.css">
+  <link rel="stylesheet" href="layout-alignment.css">
 </head>
 <body>
   <main class="shell shop-page">
-    <header class="topbar shop-topbar"><a class="brand" href="index.html"><span class="brand-mark">🎡</span><span>學習樂園</span></a><nav class="page-nav" aria-label="主要導覽"><a class="nav-link" href="practice.html">練習園地</a><a class="nav-link active" href="shop.html" aria-current="page">轉蛋商店</a><a class="nav-link" href="collection.html">收藏圖鑑</a></nav><div class="coin-wallet" aria-live="polite"><span>我的金幣</span><strong><span id="coins">0</span> 🪙</strong><div id="testModeTools" hidden><b id="testModeBadge">測試模式</b> <button type="button" id="resetTestData">重設測試帳本</button></div></div></header>
+    <header class="topbar shop-topbar"><a class="brand" href="index.html"><span class="brand-mark">🎡</span><span>學習樂園</span></a><nav class="page-nav" aria-label="主要導覽"><a class="nav-link" href="practice.html">練習園地</a><a class="nav-link active" href="gacha-menu.html" aria-current="page">轉蛋選擇</a><a class="nav-link" href="collection-menu.html">圖鑑選擇</a></nav><div class="coin-wallet" aria-live="polite"><span>我的金幣</span><strong><span id="coins">0</span> 🪙</strong><div id="testModeTools" hidden><b id="testModeBadge">測試模式</b> <button type="button" id="resetTestData">重設測試帳本</button></div></div></header>
     <section class="shop-intro"><div><p class="eyebrow">SHIBA GACHA · COLLECTION SERIES</p><h1>柴柴轉蛋商店</h1></div><div class="shop-price"><strong>單抽 100 🪙</strong><span>重複造型返還 20 金幣</span></div></section>
     <section class="gacha-layout" aria-label="柴柴轉蛋機">
       <div class="gacha-main">
@@ -41,7 +42,7 @@
           </div>
           <div class="capsule-journey" id="capsuleJourney" aria-hidden="true"><div class="capsule-shell rarity-common" id="capsuleShell"><i class="capsule-top"></i><i class="capsule-bottom"></i><span class="capsule-seam"></span><span class="capsule-spark"></span></div></div>
           <div class="scene-sparkles" aria-hidden="true"><i>✦</i><i>✧</i><i>★</i><i>✧</i><i>⋆</i><i>✦</i><i>✧</i><i>★</i><i>✦</i><i>⋆</i><i>✧</i><i>✦</i><i>★</i><i>✧</i></div>
-          <section class="result-card result-overlay card" id="resultCard" aria-live="polite" hidden><button class="result-close" id="closeResult" type="button" aria-label="關閉抽獎結果">×</button><div class="card-image"><img id="resultImage" alt=""></div><div class="card-footer"><div><div class="card-title" id="resultName"></div><div class="card-sub" id="resultRarity"></div></div><span class="status" id="resultMessage"></span></div></section>
+          <section class="result-card result-overlay card" id="resultCard" aria-live="polite" hidden><button class="result-close" id="closeResult" type="button" aria-label="關閉抽獎結果">×</button><div class="result-message" id="resultMessage"></div><div class="card-image"><img id="resultImage" alt=""></div><div class="card-footer"><div><div class="card-title" id="resultName"></div><div class="card-sub" id="resultRarity"></div></div></div></section>
         </div>
         <div class="draw-controls"><button class="primary draw-button" id="drawButton">轉蛋 · 100 🪙</button><button class="skip-button" id="skipButton" hidden>跳過動畫</button><p class="insufficient" id="insufficient" hidden>金幣不足，完成數學練習即可獲得金幣。</p></div>
       </div>

@@ -13,22 +13,34 @@
   function draw(collected, streak = 0, random = Math.random) {
     const owned = pool.filter(id => collected.includes(id));
     const unowned = pool.filter(id => !collected.includes(id));
-    let isNew;
-    if (!owned.length) isNew = true;
-    else if (!unowned.length) isNew = false;
-    else isNew = random() * 100 < newChance(collected, streak);
-    const candidates = isNew ? unowned : owned;
-    const tiers = Object.entries(R.groups).map(([tier, group]) => ({ tier, ids: group.ids.filter(id => candidates.includes(id)), chance: group.chance })).filter(group => group.ids.length);
-    let chosen;
-    if (tiers.length === 1) chosen = tiers[0];
-    else {
-      const total = tiers.reduce((sum, item) => sum + item.chance, 0);
-      let roll = random() * total;
-      chosen = tiers[tiers.length - 1];
-      for (const tier of tiers) { roll -= tier.chance; if (roll < 0) { chosen = tier; break; } }
+    const chance = newChance(collected, streak);
+
+    // Roll rarity from the complete table first, so collection progress never
+    // renormalizes or inflates the advertised tier percentages.
+    let roll = random() * 100;
+    const tierNames = Object.keys(R.groups);
+    let tier = tierNames[tierNames.length - 1];
+    for (const [key, group] of Object.entries(R.groups)) {
+      roll -= group.chance;
+      if (roll < 0) { tier = key; break; }
     }
-    const id = chosen.ids.length === 1 ? chosen.ids[0] : chosen.ids[Math.floor(random() * chosen.ids.length)];
-    return { id, tier: chosen.tier, duplicate: !isNew, isNew, newChance: newChance(collected, streak) };
+    const tierPool = R.groups[tier].ids.filter(id => pool.includes(id));
+    const tierOwned = tierPool.filter(id => owned.includes(id));
+    const tierUnowned = tierPool.filter(id => unowned.includes(id));
+    let isNew;
+    if (!tierOwned.length) isNew = true;
+    else if (!tierUnowned.length) isNew = false;
+    else isNew = random() * 100 < chance;
+    const candidates = isNew ? tierUnowned : tierOwned;
+    const id = candidates[Math.floor(random() * candidates.length)];
+    return { id, tier, duplicate: !isNew, isNew, newChance: chance };
   }
-  window.SHIBA_GACHA_CORE = Object.freeze({ newChance, draw, pool: () => pool.slice() });
+  function drawPity(collected, random = Math.random) {
+    const tier = random() < 0.8 ? 'epic' : 'legendary';
+    const candidates = R.groups[tier].ids.filter(id => pool.includes(id));
+    const id = candidates[Math.floor(random() * candidates.length)];
+    const duplicate = collected.includes(id);
+    return { id, tier, duplicate, isNew: !duplicate, newChance: 0, pity: true };
+  }
+  window.SHIBA_GACHA_CORE = Object.freeze({ newChance, draw, drawPity, pool: () => pool.slice() });
 })();

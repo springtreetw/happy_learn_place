@@ -80,7 +80,7 @@ function newChallengeId(){return `three-digit-${Date.now()}-${Math.random().toSt
 function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
 function digits(n){return String(n).split("").map(Number)}
 function formatTime(s){return `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`}
-function renderCompanion(){const companion=GAME.getDisplayCharacter();$("practiceCompanion").src=`assets/shiba/shiba_${String(companion.id).padStart(2,"0")}.png`;$("practiceCompanion").alt=`目前展示的夥伴：${companion.name}`;const name=$("practiceCompanionName");name.textContent=companion.name;name.className=`rarity-label rarity-${companion.rarity}`}
+function renderCompanion(){const companion=GAME.getDisplayCharacter();$("practiceCompanion").src=companion.image;$("practiceCompanion").alt=`目前展示的${companion.seriesName}：${companion.name}`;const name=$("practiceCompanionName");name.textContent=companion.name;name.className=`rarity-label rarity-${companion.rarity}`}
 function renderPendingCoins(){$("pendingCoinDisplay").textContent=pendingCoins.toLocaleString("zh-Hant")}
 function columnsFor(rows){
   // rows are left-padded only for layout; arithmetic positions are right-aligned.
@@ -326,6 +326,7 @@ function restoreProgress(){
 }
 restoreProgress();
 renderCompanion();
+window.addEventListener("storage",event=>{if(event.key?.includes("stage3"))renderCompanion()});
 </script>
 </body>
 </html>

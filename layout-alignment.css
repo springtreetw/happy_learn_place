@@ -1,0 +1,116 @@
+/* 保留各頁的色彩主題，統一文字換行與主要版面尺度。 */
+.catalog-menu .top{flex-wrap:wrap;min-width:0}
+.catalog-menu .brand,.catalog-menu .back{min-width:0;line-height:1.4}
+.catalog-menu .choices{grid-template-columns:repeat(2,minmax(0,1fr))}
+.catalog-menu .choice{grid-template-columns:minmax(120px,170px) minmax(0,1fr);min-width:0}
+.catalog-menu .choice>div:last-child{min-width:0}
+.catalog-menu .choice h2,.catalog-menu .choice p,.catalog-menu .go{overflow-wrap:anywhere}
+.catalog-menu .choice h2{line-height:1.25}
+@media(max-width:680px){.catalog-menu .choices{grid-template-columns:minmax(0,1fr)}.catalog-menu .choice{grid-template-columns:minmax(100px,120px) minmax(0,1fr)}}
+
+.badcat-gallery .shell{max-width:1160px;padding:26px 28px 56px}
+.badcat-gallery .topbar{margin-bottom:46px}
+.badcat-gallery .hero{grid-template-columns:minmax(0,1fr) auto;gap:22px;align-items:end;margin-bottom:25px}
+.badcat-gallery .progress-card{min-width:200px;padding:17px 19px}
+.badcat-gallery .display-panel{position:relative;min-height:300px;margin:27px 0 38px;padding:28px 42px;gap:30px;border-radius:30px}
+.badcat-gallery .display-avatar{width:238px;height:238px}
+.badcat-gallery .toolbar{margin:20px 0 17px}
+.badcat-gallery .grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.badcat-gallery .card{border-radius:19px}
+.badcat-gallery .card-image{aspect-ratio:1}
+.badcat-gallery .card-footer{padding:12px 13px}
+.badcat-gallery .card-title{font-size:14px}
+.badcat-gallery .modal{width:min(800px,100%);max-height:min(700px,94vh)}
+@media(max-width:800px){.badcat-gallery .grid{grid-template-columns:repeat(3,minmax(0,1fr))}.badcat-gallery .display-panel{min-height:260px;padding:24px 28px}.badcat-gallery .display-avatar{width:190px;height:190px}}
+@media(max-width:540px){.badcat-gallery .shell{padding:18px 15px 40px}.badcat-gallery .topbar{margin-bottom:32px}.badcat-gallery .hero{grid-template-columns:1fr}.badcat-gallery .display-panel{min-height:215px;margin-top:20px;padding:18px 16px 62px;gap:12px}.badcat-gallery .display-avatar{width:145px;height:145px}.badcat-gallery .display-copy h2{font-size:20px}.badcat-gallery .display-actions{position:absolute;right:14px;bottom:13px}.badcat-gallery .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.badcat-gallery .card-footer{padding:10px}.badcat-gallery .card-title{font-size:13px}.badcat-gallery .toolbar{gap:6px;flex-wrap:wrap}.badcat-gallery .modal{grid-template-columns:1fr;max-width:430px}.badcat-gallery .modal-art{min-height:0;aspect-ratio:1.08}.badcat-gallery .modal-art img{max-height:330px}.badcat-gallery .modal-content{padding:22px 24px 25px}.badcat-gallery .modal-content h2{font-size:25px}}
+
+.badcat-shop .shell{max-width:1220px;padding-top:16px}
+.badcat-shop .topbar{gap:14px;margin-bottom:24px}
+.badcat-shop .hero{align-items:end;gap:20px;margin:12px 0 22px}
+.badcat-shop .layout{grid-template-columns:minmax(0,1fr) 330px;gap:26px;align-items:start;margin-top:0}
+.badcat-shop .machine-card{min-width:0;padding:18px;border-radius:32px}
+.badcat-shop .scene{min-height:500px;border-radius:32px}
+.badcat-shop .machine{width:min(380px,78%)}
+.badcat-shop .dome{height:214px}
+.badcat-shop .history-card{min-width:0;border-radius:24px}
+.badcat-shop .result{left:50%;top:50%;right:auto;bottom:auto;width:min(330px,82%);margin:0;transform:translate(-50%,-50%);padding:0;overflow:hidden;border-radius:20px}
+.badcat-shop .result img{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:contain;object-position:center;border-radius:19px 19px 0 0}
+.badcat-shop .result strong,.badcat-shop .result span{margin:0;padding:4px 12px}
+.badcat-shop .result strong{padding-top:12px}
+.badcat-shop .result span:last-child{padding-bottom:12px}
+.badcat-shop .close-result{z-index:10;right:12px;top:12px}
+@media(max-width:900px){.badcat-shop .layout{grid-template-columns:minmax(0,1fr) 290px;gap:17px}.badcat-shop .scene{min-height:460px}}
+@media(max-width:700px){.badcat-shop .shell{padding-top:8px}.badcat-shop .topbar{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:8px 0;background:#211727}.badcat-shop .brand{grid-column:1;grid-row:1}.badcat-shop .wallet{grid-column:2;grid-row:1;padding:6px 10px}.badcat-shop .nav{grid-column:1/-1;grid-row:2;justify-content:center}.badcat-shop .layout{grid-template-columns:1fr;gap:14px}.badcat-shop .history-card{display:block}.badcat-shop .scene{min-height:430px}.badcat-shop .result{width:min(330px,82%)} }
+@media(max-width:560px){.badcat-shop .shell{padding-left:13px;padding-right:13px}.badcat-shop .hero{align-items:start;flex-direction:column}.badcat-shop .price{text-align:left}.badcat-shop .machine-card{padding:10px}.badcat-shop .scene{min-height:390px;border-radius:25px}.badcat-shop .machine{width:min(330px,88%)}.badcat-shop .dome{height:185px}.badcat-shop .body-machine{min-height:190px;padding-left:17px;padding-right:17px}.badcat-shop .result{width:min(290px,84%)}}
+
+/* Shared orange-theme selector and Shiba navigation structure, retained over the Badcat palette. */
+.badcat-gallery .topbar,.badcat-shop .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.badcat-gallery .page-nav,.badcat-shop .page-nav{display:flex;align-items:center;gap:8px}.badcat-gallery .nav-link,.badcat-shop .nav-link{display:inline-flex;padding:9px 14px;border-radius:99px;text-decoration:none;font-size:13px;font-weight:800;white-space:nowrap}.badcat-gallery .nav-link{border:1px solid var(--line);background:#fff9;color:var(--muted)}.badcat-gallery .nav-link:visited{color:var(--muted)}.badcat-gallery .nav-link:hover,.badcat-gallery .nav-link.active{background:var(--deep);border-color:var(--deep);color:#fff}.badcat-shop .nav-link{border:1px solid #50344e;background:#241a29;color:#d5bdce}.badcat-shop .nav-link:visited{color:#d5bdce}.badcat-shop .nav-link:hover,.badcat-shop .nav-link.active{background:#9d3e5f;border-color:#c45a78;color:#fff}.badcat-gallery .brand:visited,.badcat-shop .brand:visited{color:var(--text)}.badcat-gallery #badcatTestTools{font-size:10px;color:#edcf87}.badcat-shop .coin-wallet{padding:9px 13px;border:1px solid #6a4e42;border-radius:14px;background:#35292a;color:#e6bd6c;font-weight:900;white-space:nowrap}.badcat-shop .coin-wallet strong{font-size:18px}.badcat-shop .coin-wallet>span{display:block;font-size:12px}.badcat-shop .coin-wallet #badcatTestTools{display:block;font-size:10px;color:#edcf87}.badcat-shop #badcatReset{margin-left:5px;padding:3px 6px;background:#412a3d;border:1px solid #73536d;border-radius:6px;font-size:10px}
+@media(max-width:700px){.badcat-gallery .topbar,.badcat-shop .topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}.badcat-gallery .brand,.badcat-shop .brand{grid-column:1;grid-row:1}.badcat-gallery .nav-link,.badcat-shop .nav-link{padding:8px 10px;font-size:12px}.badcat-gallery .page-nav,.badcat-shop .page-nav{grid-column:1/-1;grid-row:2;justify-content:center}.badcat-shop .coin-wallet{grid-column:2;grid-row:1;padding:6px 10px}}
+
+/* Match Shiba gacha motion and information hierarchy while keeping Badcat colors. */
+.badcat-shop .scene{isolation:isolate}
+.badcat-shop .legendary-backdrop,.badcat-shop .legendary-rainbow{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .8s ease}
+.badcat-shop .legendary-backdrop{background:radial-gradient(ellipse at 50% 42%,#f6d77888 0,#8e4a5680 30%,transparent 73%)}
+.badcat-shop .legendary-rainbow{inset:-30%;background:conic-gradient(from 0deg,#ff5c6d,#ffb34d,#fff06b,#72e9a2,#61d9ff,#8e88ff,#db77ff,#ff6fbb,#ff5c6d);filter:saturate(1.35) drop-shadow(0 0 7px #ffcf735c);mix-blend-mode:screen;mask:radial-gradient(ellipse at center,transparent 31%,#000 44%,#000 76%,transparent 91%)}
+.badcat-shop .scene.is-running[data-rarity=legendary][data-phase=drop] .legendary-backdrop,.badcat-shop .scene.is-running[data-rarity=legendary][data-phase=open] .legendary-backdrop{opacity:1}
+.badcat-shop .scene.is-running[data-rarity=legendary][data-phase=drop] .legendary-rainbow,.badcat-shop .scene.is-running[data-rarity=legendary][data-phase=open] .legendary-rainbow{opacity:.64;animation:badcat-rainbow-turn 4.6s linear infinite,badcat-rainbow-pulse 1.25s ease-in-out infinite alternate}
+.badcat-shop .scene.is-running .machine{animation:badcat-machine-jiggle .16s ease-in-out 7}
+.badcat-shop .scene.is-running .handle{animation:badcat-handle-spin 1.1s cubic-bezier(.2,.8,.3,1) both}
+.badcat-shop .scene.is-running .capsules i{animation:badcat-pill-bounce .42s ease-in-out 3 alternate}
+.badcat-shop .scene.is-running[data-phase=operate] .outlet,.badcat-shop .scene.is-running[data-phase=drop] .outlet{filter:drop-shadow(0 0 15px #f4cf7d);animation:badcat-glow-pulse .42s ease-in-out infinite alternate}
+.badcat-shop .capsule-journey{position:absolute;z-index:3;left:50%;top:50%;width:146px;height:146px;display:grid;place-items:center;transform:translate(-50%,-50%);opacity:0;pointer-events:none}
+.badcat-shop .capsule-shell{--tier-glow:#fff5d4;--capsule:#f0e5c8;--capsule-dark:#d8c9a8;position:relative;width:128px;height:128px;border:3px solid #fff;border-radius:50%;background:linear-gradient(180deg,#fff 0 48%,#e9e3d5 49% 52%,#faf7ee 53%);box-shadow:0 8px 19px #08050a66,inset -9px -7px 15px #a0906c24}
+.badcat-shop .capsule-shell.rarity-rare{--tier-glow:#9dd7ae;--capsule:#9dd7ae;--capsule-dark:#63ad7d;background:linear-gradient(180deg,#ebfff0 0 48%,#75bd8c 49% 52%,#a8dfb4 53%)}
+.badcat-shop .capsule-shell.rarity-epic{--tier-glow:#c4a7ec;--capsule:#c4a7ec;--capsule-dark:#9672cc;background:linear-gradient(180deg,#f8efff 0 48%,#a686d6 49% 52%,#c9adee 53%)}
+.badcat-shop .capsule-shell.rarity-legendary{--tier-glow:#f4d56c;--capsule:#f4d56c;--capsule-dark:#d2a629;background:linear-gradient(180deg,#fff9d9 0 48%,#e1b83f 49% 52%,#f4d56c 53%)}
+.badcat-shop .capsule-top,.badcat-shop .capsule-bottom{position:absolute;left:0;right:0;height:50%;background:var(--capsule);border-radius:50% 50% 10% 10%;transition:transform .55s cubic-bezier(.2,.8,.2,1)}
+.badcat-shop .capsule-top{top:0}.badcat-shop .capsule-bottom{bottom:0;transform:rotate(180deg)}
+.badcat-shop .capsule-seam{position:absolute;left:-1px;right:-1px;top:48%;border-top:4px solid var(--capsule-dark)}
+.badcat-shop .capsule-spark{position:absolute;inset:14px;border-radius:50%;background:radial-gradient(circle,#fff 0 3px,transparent 4px);opacity:0}
+.badcat-shop .scene.is-running[data-phase=drop] .capsule-journey{opacity:1}
+.badcat-shop .scene.is-running[data-phase=drop] .capsule-shell{animation:badcat-capsule-drop-roll .8s cubic-bezier(.22,.78,.28,1) both}
+.badcat-shop .scene.is-running[data-phase=open] .capsule-journey{opacity:1}
+.badcat-shop .scene.is-running[data-phase=open] .capsule-top{transform:translate(-35px,-39px) rotate(-35deg)}
+.badcat-shop .scene.is-running[data-phase=open] .capsule-bottom{transform:translate(35px,34px) rotate(215deg)}
+.badcat-shop .scene.is-running[data-phase=open] .capsule-spark{opacity:1;box-shadow:0 0 30px 20px var(--tier-glow)}
+.badcat-shop .scene-sparkles{position:absolute;inset:5%;z-index:2;pointer-events:none;color:#fff3ba}
+.badcat-shop .scene-sparkles i{position:absolute;opacity:0;font-style:normal;font-size:24px;text-shadow:0 0 6px #fff,0 0 15px currentColor}
+.badcat-shop .scene-sparkles i:nth-child(1){left:16%;top:30%;color:#ffbf69}.badcat-shop .scene-sparkles i:nth-child(2){right:17%;top:23%;color:#8ee9ff}.badcat-shop .scene-sparkles i:nth-child(3){right:13%;bottom:24%;color:#ffe66d}.badcat-shop .scene-sparkles i:nth-child(4){left:15%;bottom:27%;color:#ff91c8}.badcat-shop .scene-sparkles i:nth-child(5){left:30%;top:17%;color:#b9a0ff}.badcat-shop .scene-sparkles i:nth-child(6){right:31%;bottom:14%;color:#91f2c0}
+.badcat-shop .scene-sparkles i:nth-child(7){left:8%;top:49%;color:#ffd36e}.badcat-shop .scene-sparkles i:nth-child(8){right:8%;top:47%;color:#ff9c78}.badcat-shop .scene-sparkles i:nth-child(9){left:25%;bottom:9%;color:#9eeaff}.badcat-shop .scene-sparkles i:nth-child(10){right:26%;top:9%;color:#f5aaff}.badcat-shop .scene-sparkles i:nth-child(11){left:43%;top:8%;color:#c5ff8b}.badcat-shop .scene-sparkles i:nth-child(12){right:42%;bottom:8%;color:#ffcf8d}.badcat-shop .scene-sparkles i:nth-child(13){left:5%;top:19%;color:#ff9ec0}.badcat-shop .scene-sparkles i:nth-child(14){right:5%;bottom:11%;color:#a6b9ff}
+.badcat-shop .scene.is-running .scene-sparkles i{animation:badcat-spark-pop .72s ease-in-out 4 both}
+.badcat-shop .scene.is-running .scene-sparkles i:nth-child(2n){animation-delay:.12s}.badcat-shop .scene.is-running .scene-sparkles i:nth-child(3n){animation-delay:.24s}.badcat-shop .scene.is-running .scene-sparkles i:nth-child(4n){animation-delay:.32s}
+.badcat-shop .history-card{padding:19px}.badcat-shop .history-heading{display:flex;justify-content:space-between;align-items:end;gap:8px;margin-bottom:11px}.badcat-shop .history-heading .eyebrow{font-size:10px;margin:0 0 6px}.badcat-shop .history-heading h2{margin:0;font-size:20px}.badcat-shop .history-count{color:#ad9cab;font-size:10px;white-space:nowrap}.badcat-shop .history-list{list-style:none;margin:0;padding:0;display:grid;gap:7px}.badcat-shop .history-item{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:9px;padding:7px;border:1px solid #453145;border-radius:12px;background:#211824}.badcat-shop .history-item.rarity-rare{border-color:#45614c}.badcat-shop .history-item.rarity-epic{border-color:#594267}.badcat-shop .history-item.rarity-legendary{border-color:#66562d}.badcat-shop .history-item img{width:40px;height:40px;object-fit:contain;border-radius:50%;background:#eee5ef}.badcat-shop .history-name{font-size:12px;font-weight:800;min-width:0}.badcat-shop .history-name small{display:block;color:#ad9cab;font-size:10px;font-weight:500;margin-top:3px}.badcat-shop .history-item strong{font-size:10px;color:#d8bf73;white-space:nowrap}.badcat-shop .history-empty{padding:18px 7px;text-align:center;color:#ad9cab;font-size:12px;line-height:1.6}
+.badcat-shop .coin-wallet{display:flex;align-items:center;gap:10px;padding:9px 15px;border:1px solid #6a4e42;border-radius:15px;background:linear-gradient(135deg,#35292a,#402b2a);box-shadow:0 5px 15px #08060b55;white-space:nowrap;flex-wrap:wrap}
+.badcat-shop .coin-wallet>span{font-size:12px;color:#c1aebc;display:inline}
+.badcat-shop .coin-wallet strong{font-size:20px;color:#e6bd6c}
+.badcat-shop .coin-wallet #badcatTestTools{flex-basis:100%;font-size:10px;color:#edcf87}
+@keyframes badcat-machine-jiggle{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-4px) rotate(-.7deg)}75%{transform:translateX(4px) rotate(.7deg)}}
+@keyframes badcat-handle-spin{0%{transform:rotate(-17deg)}25%{transform:rotate(-97deg)}68%{transform:rotate(293deg)}100%{transform:rotate(573deg)}}
+@keyframes badcat-pill-bounce{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+@keyframes badcat-glow-pulse{from{opacity:.3;transform:translateX(-50%) scale(.85)}to{opacity:.95;transform:translateX(-50%) scale(1.2)}}
+@keyframes badcat-capsule-drop-roll{0%{opacity:0;transform:translateY(-140%) rotate(-90deg) scale(.62)}65%{opacity:1;transform:translateY(10%) rotate(35deg) scale(1.04)}82%{transform:translateY(-7%) rotate(85deg) scale(.98)}100%{opacity:1;transform:translateY(0) rotate(360deg) scale(1)}}
+@keyframes badcat-spark-pop{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:.8;transform:scale(1) rotate(40deg)}}
+@keyframes badcat-rainbow-turn{to{transform:rotate(360deg)}}
+@keyframes badcat-rainbow-pulse{from{filter:saturate(1.2) drop-shadow(0 0 5px #ffcf7355)}to{filter:saturate(1.55) drop-shadow(0 0 12px #fff2b28c)}}
+@media(prefers-reduced-motion:reduce){.badcat-shop .scene *, .badcat-shop .result{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+@media(max-width:700px){.badcat-shop .coin-wallet>span{display:none}.badcat-shop .coin-wallet{gap:8px;padding:6px 10px}.badcat-shop .coin-wallet strong{font-size:18px}}
+
+.badcat-shop .page-nav{flex:1;justify-content:center}
+.badcat-shop .draw.is-pity{border-color:#ffe08c;background:linear-gradient(130deg,#f6d982,#e6bd6c 55%,#a94d68);color:#2b1723;box-shadow:0 0 0 3px #e6bd6c3d,0 12px 28px #08060b88}
+
+/* Put the result message above the image, centered in both gacha result cards. */
+.shop-page .result-message,.badcat-shop .result-message{position:relative;z-index:5;display:flex!important;width:100%;min-height:50px;align-items:center;justify-content:center;padding:12px 42px;text-align:center;font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;font-size:15px;font-weight:900;line-height:1.4;border-bottom:1px solid}
+.shop-page .result-message{border-color:#e7dabc;color:#89671b;background:linear-gradient(180deg,#fffefa,#fff7e8)}
+.shop-page .result-message.is-duplicate{color:#a85025}
+.badcat-shop .result-message{border-color:#674858;color:#ffdf9e;background:linear-gradient(180deg,#493142,#382838)}
+.badcat-shop .result-message.is-duplicate{color:#f0c873}
+.shop-page .result-close,.badcat-shop .close-result{z-index:10}
+.badcat-shop .skip-button{margin-left:10px;border:1px solid #73536d;border-radius:13px;padding:12px 17px;background:#382838;color:#f4dce7;font-weight:800}
+.badcat-shop .skip-button:hover{background:#4b3044}
+@media(max-width:560px){.badcat-shop .skip-button{margin:10px 0 0}}
+.badcat-gallery #badcatTestTools{font-size:inherit;color:var(--ink);font-weight:inherit;white-space:nowrap}
+.badcat-gallery #badcatTestTools b{font-weight:inherit}
+.badcat-gallery #badcatTestTools button{margin-left:5px;padding:3px 7px;border:1px solid var(--line);border-radius:7px;background:#fff9;font-size:11px}
+@media(max-width:700px){.badcat-gallery #badcatTestTools{grid-column:2;grid-row:1;justify-self:end}}
+
+.badcat-shop .result img{border-radius:0}

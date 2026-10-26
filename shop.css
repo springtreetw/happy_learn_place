@@ -41,12 +41,14 @@
 .gacha-scene.is-running[data-phase=open] .capsule-top{transform:translate(-35px,-39px) rotate(-35deg)}
 .gacha-scene.is-running[data-phase=open] .capsule-bottom{transform:translate(35px,34px) rotate(215deg)}
 @media(max-width:430px){.capsule-journey{width:128px;height:128px}.capsule-shell{width:108px;height:108px}}
-.result-overlay{border:2px solid #fff;box-shadow:0 30px 48px #30261755,0 12px 22px #60472740,inset 0 1px 0 #ffffff,inset 0 -5px 0 #c9b99a;background:linear-gradient(145deg,#fffefa,#fff8e9);}
+.result-overlay{border:1px solid #fff;box-shadow:0 30px 48px #30261755,0 12px 22px #60472740,inset 0 1px 0 #ffffff,inset 0 -5px 0 #c9b99a;background:linear-gradient(145deg,#fffefa,#fff8e9);}
 .result-overlay:before{width:260px;height:260px;left:-110px;top:-170px;opacity:.75;mix-blend-mode:screen}
 .result-overlay:after{content:"";position:absolute;z-index:1;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(125deg,#ffffff80 0%,transparent 23%,transparent 75%,#b89a5b18 100%);box-shadow:inset 0 0 0 1px #ffffffb8,inset 0 -2px 4px #876e4438}
 .result-overlay .card-image{position:relative;z-index:0;background:radial-gradient(ellipse at 32% 20%,#fff 0,#f7f2e6 55%,#e3d8c3 100%);box-shadow:inset 0 5px 14px #78634320,inset 0 -5px 12px #7863431e}
 .result-overlay .card-image img{filter:drop-shadow(0 12px 8px #483c2d45);transform:translateY(-2px)}
+.result-overlay .card-image img{display:block;width:100%;height:100%;object-fit:contain;object-position:center;border-radius:0;filter:none;transform:none}
 .result-overlay .card-footer{position:relative;z-index:2;border-top:1px solid #ffffff;background:linear-gradient(180deg,#fffefa,#f8f0df);box-shadow:inset 0 3px 7px #fff}
+.shop-page .draw-button.is-pity{border-color:#d49b36;background:linear-gradient(135deg,#fff1b8,#e8b94d 62%,#f3d888);color:#533c19;box-shadow:0 0 0 3px #e8b94d35,0 10px 25px #a8782740}
 .result-close{box-shadow:0 4px 10px #3a2c1c50,inset 0 1px 2px #fff;border:1px solid #d7c9b0}
 .gacha-machine{filter:drop-shadow(0 23px 18px #31473842) drop-shadow(0 5px 2px #49634a25)}
 .machine-dome{border-width:8px;border-bottom-width:12px;background:linear-gradient(105deg,#ffffffef 3%,#f5fffaac 22%,#cce9dd8c 66%,#ffffffcc 100%);box-shadow:inset 9px 5px 13px #fff,inset -10px -15px 24px #60947b32,0 7px 0 #a4cbb8,0 12px 14px #3f654e25}
