@@ -114,3 +114,5 @@
 @media(max-width:700px){.badcat-gallery #badcatTestTools{grid-column:2;grid-row:1;justify-self:end}}
 
 .badcat-shop .result img{border-radius:0}
+
+.badcat-shop #badcatTestTools[hidden]{display:none!important}
