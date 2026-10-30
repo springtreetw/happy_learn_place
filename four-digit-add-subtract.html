@@ -129,6 +129,7 @@ function generateSet(){
   return set;
 }
 function renderQuestion(){
+  $("next").textContent=current===TOTAL-1?"完成挑戰 ✓":"下一題 →";
   const q=questions[current];
   $("score").textContent=`${correctCount} / ${TOTAL}`;$("operation").textContent=q.op==="+"?"加法":"減法";
   $("qnum").textContent=`第 ${current+1} / ${TOTAL} 題`;$("bar").style.width=`${current/TOTAL*100}%`;
@@ -257,7 +258,7 @@ function restoreProgress(){
   if(!saved||![1,2,3].includes(saved.version)||!Array.isArray(saved.questions))return;const savedTotal=saved.version===3?saved.totalQuestions:50;if(![10,20,50].includes(savedTotal)||saved.questions.length!==savedTotal||!Number.isInteger(saved.current)||saved.current<0||saved.current>=savedTotal)return;TOTAL=savedTotal;updateQuestionCount();
   challengeId=saved.challengeId;questions=saved.questions;current=saved.current;totalSeconds=saved.totalSeconds||0;questionSeconds=saved.questionSeconds||0;correctCount=saved.correctCount||0;started=Boolean(saved.started);finished=Boolean(saved.finished);
   pendingCoins=saved.version===2?(saved.pendingCoins||0):0;settled=Boolean(saved.settled);renderPendingCoins();
-  if(finished){finishQuiz();return}
+  if(finished){GAME.clearPracticeProgress(PRACTICE_ID);return}
   if(!started)return;
   $("startScreen").classList.add("hidden");$("results").style.display="none";$("quizCard").classList.remove("hidden");$("progressArea").classList.remove("hidden");$("tips").classList.add("hidden");
   $("totalTimer").textContent=formatTime(totalSeconds);renderQuestion();timerHandle=setInterval(tick,1000);
