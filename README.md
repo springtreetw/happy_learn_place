@@ -10,7 +10,7 @@
 - `badcat-collection.html`：獨立壞壞貓圖鑑與展示夥伴選擇。
 - `badcat-shop.html`：暗夜紫紅配色的壞壞貓轉蛋商店。
 - `practice.html`：練習園地選單。
-- `four-digit-add-subtract.html`、`three-digit-multiplication.html`：兩種 50 題數學練習。
+- `four-digit-add-subtract.html`、`three-digit-multiplication.html`：兩種可選 10、20 或 50 題的數學練習。
 - `badcat-rarity.js`、`badcat-gacha-core.js`、`badcat-app.js`：壞壞貓稀有度、抽獎和獨立收藏資料；金幣交易呼叫共用 Stage 3 API。
 - `catalog-menu.css`、`badcat-collection.css`、`badcat-shop.css`、`layout-alignment.css`：系列選單及壞壞貓頁面樣式；共用版面尺寸與柴柴頁面對齊。
 - `assets/shiba/`：柴柴圖片 `shiba_01.png` 至 `shiba_32.png`。
@@ -39,7 +39,7 @@
 
 ## Stage 5 既有功能
 
-柴柴抽獎先按普通 50%、稀有 30%、史詩 15%、傳說 5% 固定權重選稀有度，再在該稀有度內依收藏進度與連續重複次數判定新收藏或重複。01 原型不會抽中，也不計入 31 款抽獎收藏進度。正式帳本從 0 金幣與僅收藏 01 開始。數學練習暫存每題獎勵，完成 50 題才結算；放棄測驗會作廢該次金幣，離開或重新載入則保存進度。
+柴柴抽獎先按普通 50%、稀有 30%、史詩 15%、傳說 5% 固定權重選稀有度，再在該稀有度內依收藏進度與連續重複次數判定新收藏或重複。01 原型不會抽中，也不計入 31 款抽獎收藏進度。正式帳本從 0 金幣與僅收藏 01 開始。數學練習可選 10、20 或 50 題，獎勵在整份測驗結束時結算；50 題全數答對另獎勵 100 金幣；放棄測驗會作廢該次金幣，離開或重新載入則保存進度。
 
 ## 測試帳本
 
