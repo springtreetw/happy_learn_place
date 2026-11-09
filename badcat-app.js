@@ -1,19 +1,24 @@
 (() => {
   'use strict';
-  const TOTAL = 32, COST = 100, REFUND = 20, PITY_THRESHOLD = 10, CAPSULE_EXIT_RISE = 54;
+  const TOTAL = 32, HIDDEN_TOTAL = 15, MAX_ID = 47, COST = 100, REFUND = 20, PITY_THRESHOLD = 10, CAPSULE_EXIT_RISE = 54;
   const NAMES = ['壞壞貓','虎克船長','吸血鬼','烏蘇拉','海盜王','鬼武士','機械博士','白面魅影','暗影女王','瘟疫醫師','庫伊拉','血色小丑','死靈法師','黑龍皇帝','小丑女','劫掠者','黑魔女','幻影怪盜','黑鐵騎士','海軍提督','破碎人偶','壞皇后','幽影槍手','角鬥士','深海魔王','毒沼女巫','蛇髮女妖','熔岩魔君','賞金獵人','艾莎','暗影忍者','戰爭領主'];
-  const R = window.BADCAT_RARITY, CORE = window.BADCAT_GACHA_CORE, GAME = window.SHIBA_GAME;
+  const R = window.BADCAT_RARITY, CORE = window.BADCAT_GACHA_CORE, GAME = window.SHIBA_GAME, HIDDEN = window.HIDDEN_CATALOG.badcat;
   const TEST = Boolean(GAME && GAME.testMode), KEY = TEST ? 'badcatGallery.test.v1' : 'badcatGallery.v1';
   const $ = id => document.getElementById(id), pad = n => String(n).padStart(2, '0');
-  const asset = id => `assets/badcat/cat_${pad(id)}.png`, name = id => NAMES[id - 1];
+  const asset = id => id <= TOTAL ? `assets/badcat/cat_${pad(id)}.png` : `assets/badcat_hdn_01/${HIDDEN[id - TOTAL - 1]?.file || ''}`;
+  const name = id => id <= TOTAL ? NAMES[id - 1] : HIDDEN[id - TOTAL - 1]?.name || `夥伴 ${pad(id)}`;
+  const cardNo = id => id <= TOTAL ? pad(id) : `隱藏 ${pad(id - TOTAL)}`;
   const currentDisplay = () => GAME?.getDisplayCharacter() || { series: 'shiba', id: 1 };
-  const fresh = () => ({ version: 1, collected: [1], display: 1, drawHistory: [], consecutiveDuplicates: 0, consecutiveNoEpicPlus: 0, pendingDraw: null });
+  const fresh = () => ({ version: 1, collected: [1], display: 1, drawHistory: [], consecutiveDuplicates: 0, consecutiveNoEpicPlus: 0, pendingDraw: null, hiddenGalleryNoticeSeen: false, hiddenGachaNoticeSeen: false, hiddenNoticeVersion: 4 });
   function normalize(raw) {
     const value = { ...fresh(), ...(raw || {}) };
-    value.collected = [...new Set((Array.isArray(value.collected) ? value.collected : [1]).filter(id => Number.isInteger(id) && id >= 1 && id <= TOTAL))];
+    value.collected = [...new Set((Array.isArray(value.collected) ? value.collected : [1]).filter(id => Number.isInteger(id) && id >= 1 && id <= MAX_ID))];
     if (!value.collected.includes(1)) value.collected.unshift(1);
     if (!value.collected.includes(value.display)) value.display = 1;
-    value.drawHistory = Array.isArray(value.drawHistory) ? value.drawHistory.filter(row => row && Number.isInteger(row.id) && R.byId[row.id]).slice(0, 30) : [];
+    value.drawHistory = Array.isArray(value.drawHistory) ? value.drawHistory.filter(row => row && Number.isInteger(row.id) && row.id <= MAX_ID && R.byId[row.id]).slice(0, 30) : [];
+    value.hiddenGalleryNoticeSeen = raw?.hiddenNoticeVersion === 4 && Boolean(value.hiddenGalleryNoticeSeen);
+    value.hiddenGachaNoticeSeen = raw?.hiddenNoticeVersion === 4 && Boolean(value.hiddenGachaNoticeSeen);
+    value.hiddenNoticeVersion = 4;
     value.consecutiveDuplicates = Number.isSafeInteger(value.consecutiveDuplicates) && value.consecutiveDuplicates >= 0 ? value.consecutiveDuplicates : 0;
     value.consecutiveNoEpicPlus = Number.isSafeInteger(value.consecutiveNoEpicPlus) && value.consecutiveNoEpicPlus >= 0 ? value.consecutiveNoEpicPlus : 0;
     if (!value.pendingDraw || !Number.isInteger(value.pendingDraw.id) || !R.byId[value.pendingDraw.id] || typeof value.pendingDraw.chargeId !== 'string') value.pendingDraw = null;
@@ -21,6 +26,8 @@
   }
   function read() { try { return normalize(JSON.parse(localStorage.getItem(KEY))); } catch (_) { return fresh(); } }
   let state = read(), activeItem = 1, drawing = false, activeDrawPity = false, activeDrawRow = null, activeHistoryId = null, animationTimers = [];
+  const baseOwnedCount = () => state.collected.filter(id => id <= TOTAL).length;
+  const hiddenUnlocked = () => baseOwnedCount() >= TOTAL;
   function save(next) {
     try { localStorage.setItem(KEY, JSON.stringify(next)); state = next; render(); return true; }
     catch (_) { toast('資料儲存失敗，請確認瀏覽器儲存空間。'); return false; }
@@ -32,12 +39,12 @@
     const lastIsCurrent = current.series === 'badcat' && current.id === state.display;
     const query = $('badcatSearch').value.trim().toLowerCase();
     const filter = document.querySelector('.badcat-filter.active')?.dataset.filter || 'all';
-    $('badcatCount').textContent = `${state.collected.length} / ${TOTAL}`;
-    $('badcatPercent').textContent = `完成 ${Math.round(state.collected.length / TOTAL * 100)}%`;
-    $('badcatProgress').style.width = `${state.collected.length / TOTAL * 100}%`;
-    $('badcatFilterCount').textContent = state.collected.length;
+    $('badcatCount').textContent = `${baseOwnedCount()} / ${TOTAL}`;
+    $('badcatPercent').textContent = `完成 ${Math.round(baseOwnedCount() / TOTAL * 100)}%`;
+    $('badcatProgress').style.width = `${baseOwnedCount() / TOTAL * 100}%`;
+    $('badcatFilterCount').textContent = baseOwnedCount();
     $('badcatDisplayImage').src = asset(state.display); $('badcatDisplayImage').alt = `${lastIsCurrent ? '目前展示' : '上次展示'}的壞壞貓：${name(state.display)}`;
-    $('badcatDisplayName').textContent = `${name(state.display)} · ${pad(state.display)}`;
+    $('badcatDisplayName').textContent = `${name(state.display)} · ${cardNo(state.display)}`;
     if ($('badcatDisplayStatus')) $('badcatDisplayStatus').textContent = lastIsCurrent ? '目前展示' : '上次展示';
     const ids = Array.from({ length: TOTAL }, (_, i) => i + 1).filter(id => (filter === 'all' || state.collected.includes(id)) && (!query || pad(id).includes(query) || name(id).toLowerCase().includes(query)));
     $('badcatGrid').innerHTML = ids.length ? ids.map(id => {
@@ -45,11 +52,34 @@
       const pin = current.series === 'badcat' && current.id === id ? '目前展示' : state.display === id ? '上次展示' : '';
       return `<article class="card ${owned ? '' : 'locked'}" data-id="${id}" ${owned ? 'tabindex="0" role="button"' : 'aria-disabled="true"'} aria-label="${owned ? name(id) : '未解鎖夥伴'}，${owned ? '已收藏' : '尚未收藏，隱藏中'}"><div class="card-image">${owned ? `<img loading="lazy" src="${asset(id)}" alt="${name(id)}">` : '<span class="locked-art" aria-hidden="true">?</span>'}${pin ? `<span class="display-pin">${pin}</span>` : ''}</div><div class="card-footer"><div><div class="card-title">${owned ? name(id) : '？？？'} · ${pad(id)}</div><div class="card-sub rarity-${tier}">${R.groups[tier].label}</div></div><span class="status ${owned ? '' : 'locked'}">${owned ? '✓ 已收藏' : '🔒 未解鎖'}</span></div></article>`;
     }).join('') : '<div class="empty">沒有符合的夥伴，試試名稱或編號。</div>';
+    renderHiddenCollection();
+  }
+  function renderHiddenCollection() {
+    const section = $('badcatHiddenSection'); if (!section) return;
+    const unlocked = hiddenUnlocked(), owned = state.collected.filter(id => id > TOTAL).length;
+    section.hidden = !unlocked; if (!unlocked) return;
+    $('badcatHiddenCount').textContent = `${owned} / ${HIDDEN_TOTAL}`;
+    const percent = Math.round(owned / HIDDEN_TOTAL * 100);
+    $('badcatHiddenPercent').textContent = `完成 ${percent}%`;
+    $('badcatHiddenProgress').style.width = `${percent}%`;
+    $('badcatHiddenGrid').innerHTML = HIDDEN.map((item, index) => {
+      const id = TOTAL + index + 1, collected = state.collected.includes(id), tier = item.tier;
+      return `<article class="card ${collected ? '' : 'locked'}" data-id="${id}" ${collected ? 'tabindex="0" role="button"' : 'aria-disabled="true"'} aria-label="${collected ? item.name : '未解鎖角色'}，${collected ? '已收藏' : '尚未收藏'}"><div class="card-image">${collected ? `<img loading="lazy" src="${asset(id)}" alt="${item.name}">` : '<span class="locked-art" aria-hidden="true">?</span>'}</div><div class="card-footer"><div><div class="card-title">${collected ? item.name : '？？？'} · ${cardNo(id)}</div><div class="card-sub rarity-${tier}">${R.groups[tier].label}</div></div><span class="status ${collected ? '' : 'locked'}">${collected ? '✓ 已收藏' : '🔒 未解鎖'}</span></div></article>`;
+    }).join('');
+    if (!state.hiddenGalleryNoticeSeen) showUnlockNotice('gallery');
+  }
+  const unlockNoticeShowing = { gallery: false, gacha: false };
+  function showUnlockNotice(surface) {
+    const key = surface === 'gallery' ? 'hiddenGalleryNoticeSeen' : 'hiddenGachaNoticeSeen'; if (state[key] || unlockNoticeShowing[surface]) return;
+    const node = document.createElement('div'); node.className = 'unlock-reveal'; node.setAttribute('role', 'status'); node.setAttribute('aria-live', 'assertive');
+    const message = document.createElement('div'); message.className = 'unlock-reveal-message'; message.textContent = '封印解除！解鎖新圖鑑！';
+    node.appendChild(message); document.body.appendChild(node); unlockNoticeShowing[surface] = true;
+    setTimeout(() => { node.remove(); unlockNoticeShowing[surface] = false; save({ ...state, [key]: true }); }, 3800);
   }
   function openModal(id) {
     if (!state.collected.includes(id)) return;
     activeItem = id; $('badcatModalImage').src = asset(id); $('badcatModalImage').alt = name(id);
-    $('badcatModalTitle').textContent = `${name(id)} · ${pad(id)}`;
+    $('badcatModalTitle').textContent = `${name(id)} · ${cardNo(id)}`;
     $('badcatModalTitle').className = `rarity-${R.byId[id]}`;
     $('badcatModalRarity').textContent = R.groups[R.byId[id]].label;
     const current = currentDisplay(), isCurrent = current.series === 'badcat' && current.id === id;
@@ -62,13 +92,13 @@
     const visibleRows = activeHistoryId ? state.drawHistory.filter(row => row.transactionId !== activeHistoryId) : state.drawHistory;
     $('badcatHistory').innerHTML = visibleRows.length ? visibleRows.slice(0, 8).map(row => {
       const when = new Date(row.at).toLocaleString('zh-Hant', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-      return `<li class="history-item rarity-${row.tier}"><img src="${asset(row.id)}" alt=""><span class="history-name">${name(row.id)} · ${pad(row.id)}<small>${R.groups[row.tier].label} · ${when}</small></span><strong>${row.duplicate ? `+${REFUND} 🪙 重複` : '新收藏'}</strong></li>`;
+      return `<li class="history-item rarity-${row.tier}"><img src="${asset(row.id)}" alt=""><span class="history-name">${name(row.id)} · ${cardNo(row.id)}<small>${R.groups[row.tier].label} · ${when}</small></span><strong>${row.duplicate ? `+${REFUND} 🪙 重複` : '新收藏'}</strong></li>`;
     }).join('') : '<li class="history-empty">完成第一次轉蛋後，紀錄會顯示在這裡。</li>';
   }
   function showResult(row) {
     if (!$('badcatResult')) return;
     $('badcatResultImage').src = asset(row.id); $('badcatResultImage').alt = name(row.id);
-    $('badcatResultName').textContent = `${name(row.id)} · ${pad(row.id)}`;
+    $('badcatResultName').textContent = `${name(row.id)} · ${cardNo(row.id)}`;
     $('badcatResultTier').textContent = `${R.groups[row.tier].label} · ${row.duplicate ? '已收藏' : '新收藏'}`;
     $('badcatResultMessage').className = `result-message${row.duplicate ? ' is-duplicate' : ''}`;
     $('badcatResultMessage').textContent = row.duplicate ? `重複夥伴已返還 ${REFUND} 金幣` : `${name(row.id)} 加入收藏！`;
@@ -109,6 +139,7 @@
     image.onload = revealHistory; image.onerror = revealHistory;
     showResult(row);
     if (image.complete && image.naturalWidth > 0) revealHistory();
+    if (row.unlockTriggered || hiddenUnlocked()) showUnlockNotice('gacha');
     render();
   }
   function finalizePending(animate) {
@@ -126,7 +157,7 @@
       const refunded = GAME.awardCoins(REFUND, '壞壞貓重複造型返還', pending.refundId);
       if (!refunded.ok) { toast('返還交易尚未完成，重新載入後會自動恢復。'); return false; }
     }
-    const row = { id: pending.id, tier: pending.tier, duplicate: pending.duplicate, pity: Boolean(pending.pity), cost: pending.pity ? 0 : COST, at: pending.at, transactionId: pending.chargeId };
+    const row = { id: pending.id, tier: pending.tier, duplicate: pending.duplicate, pity: Boolean(pending.pity), unlockTriggered: Boolean(pending.unlockTriggered), cost: pending.pity ? 0 : COST, at: pending.at, transactionId: pending.chargeId };
     const next = {
       ...state,
       collected: pending.duplicate ? state.collected : [...state.collected, pending.id],
@@ -150,14 +181,16 @@
       animationTimers.push(setTimeout(() => phase('drop'), Math.min(1500, duration * .38)));
       animationTimers.push(setTimeout(() => phase('open'), Math.min(2300, duration * .60)));
       animationTimers.push(setTimeout(finishAnimation, duration));
-    } else if ($('badcatResult')) showResult(row);
+    } else if ($('badcatResult')) { showResult(row); if (row.unlockTriggered || hiddenUnlocked()) showUnlockNotice('gacha'); }
     return true;
   }
   function draw() {
     if (drawing || state.pendingDraw || !GAME) return;
     const pity = state.consecutiveNoEpicPlus >= PITY_THRESHOLD;
-    const result = pity ? CORE.drawPity(state.collected) : CORE.draw(state.collected, state.consecutiveDuplicates);
-    const pendingDraw = { ...result, pity, cost: pity ? 0 : COST, at: Date.now(), chargeId: transactionId('badcat-draw'), refundId: transactionId('badcat-refund') };
+    const includeHidden = hiddenUnlocked();
+    const result = pity ? CORE.drawPity(state.collected, Math.random, includeHidden) : CORE.draw(state.collected, state.consecutiveDuplicates, Math.random, includeHidden);
+    const unlockTriggered = !includeHidden && !result.duplicate && baseOwnedCount() === TOTAL - 1 && result.id <= TOTAL;
+    const pendingDraw = { ...result, unlockTriggered, pity, cost: pity ? 0 : COST, at: Date.now(), chargeId: transactionId('badcat-draw'), refundId: transactionId('badcat-refund') };
     if (!save({ ...state, pendingDraw })) return;
     if (!$('badcatScene')) finalizePending(false);
     else finalizePending(true);
@@ -184,6 +217,10 @@
       $('badcatOverlay').addEventListener('click', event => { if (event.target === $('badcatOverlay')) $('badcatOverlay').classList.remove('open'); });
       document.addEventListener('keydown', event => { if (event.key === 'Escape') $('badcatOverlay').classList.remove('open'); });
     }
+    if ($('badcatHiddenGrid')) {
+      $('badcatHiddenGrid').addEventListener('click', event => { const card = event.target.closest('.card'); if (card && !card.classList.contains('locked')) openModal(Number(card.dataset.id)); });
+      $('badcatHiddenGrid').addEventListener('keydown', event => { const card = event.target.closest('.card'); if (card && !card.classList.contains('locked') && ['Enter', ' '].includes(event.key)) { event.preventDefault(); openModal(Number(card.dataset.id)); } });
+    }
     if ($('badcatDrawButton')) $('badcatDrawButton').addEventListener('click', draw);
     if ($('badcatSkipButton')) $('badcatSkipButton').addEventListener('click', finishAnimation);
     alignCapsuleToOutlet();
@@ -193,6 +230,7 @@
     window.addEventListener('storage', event => { if (event.key === KEY) { state = read(); render(); } if (event.key?.includes('stage3')) render(); });
     if (state.pendingDraw) finalizePending(false);
     render();
+    if ($('badcatScene') && hiddenUnlocked()) showUnlockNotice('gacha');
   }
   init();
 })();

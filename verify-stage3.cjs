@@ -31,6 +31,7 @@ function start(storage, randoms = [], mode = 'shop', testMode = false) {
   context.window.matchMedia = () => ({ matches: false });
   vm.createContext(context);
   vm.runInContext(fs.readFileSync(path.join(root, 'app-config.js'), 'utf8'), context);
+  vm.runInContext(fs.readFileSync(path.join(root, 'hidden-catalog.js'), 'utf8'), context);
   context.window.SHIBA_BUILD_CONFIG = { testMode };
   vm.runInContext(fs.readFileSync(path.join(root, 'rarity.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root, 'gacha-core.js'), 'utf8'), context);
@@ -42,42 +43,30 @@ const rarityApp = start(new Map());
 const rarity = rarityApp.context.window.SHIBA_RARITY;
 assert.deepEqual(Object.values(rarity.groups).map(group => group.chance), [50, 30, 15, 5]);
 assert.equal(Object.values(rarity.groups).reduce((sum, group) => sum + group.chance, 0), 100);
-assert.deepEqual(Object.values(rarity.groups).map(group => group.ids.length), [16, 8, 6, 2]);
+assert.deepEqual(Object.values(rarity.groups).map(group => group.ids.length), [16, 16, 11, 4]);
 assert.equal(rarity.draw((() => { const xs=[0.499,0]; return () => xs.shift(); })()), 2);
 assert.equal(rarity.draw((() => { const xs=[0.50,0]; return () => xs.shift(); })()), 4);
 assert.equal(rarity.draw((() => { const xs=[0.80,0]; return () => xs.shift(); })()), 23);
 assert.equal(rarity.draw((() => { const xs=[0.95,0]; return () => xs.shift(); })()), 7);
 const pool = rarity.drawPool();
 assert.equal(pool.length, 31); assert.equal(new Set(pool).size, 31); assert.equal(pool.includes(1), false);
+assert.equal(rarity.drawPool(true).length, 46);
 const core = rarityApp.context.window.SHIBA_GACHA_CORE;
-const byCount = n => [1, ...pool.slice(0, n)];
-assert.equal(core.newChance([1], 0), 100);
-for (const [n, p] of [[1,61.25],[5,66.25],[10,72.5],[15,78.75],[20,85],[25,91.25],[28,95],[29,95],[30,95],[31,0]]) assert.equal(core.newChance(byCount(n), 0), p);
-assert.equal(core.newChance(byCount(28), 1), 97); assert.equal(core.newChance(byCount(28), 2), 98);
 assert.equal(core.draw([1], 0, () => 0).duplicate, false);
 assert.equal(core.draw([1, ...pool], 5, () => 0).duplicate, true);
-{ let i=0; const xs=[.975,0,0]; assert.equal(core.draw([1, ...pool.slice(0, 30)], 0, () => xs[i++]).duplicate, false); }
 assert.equal(core.pool().includes(1), false);
+{ let i=0; const xs=[.7,.5]; const result=core.draw([1],0,()=>xs[i++],true); assert.ok(result.id>32); assert.equal(result.tier,'rare'); }
 assert.equal(core.drawPity([1], () => 0).tier, 'epic');
 assert.equal(core.drawPity([1], () => .8).tier, 'legendary');
 assert.equal(core.drawPity([1, 23], () => 0).duplicate, true);
-for (const target of pool) {
-  const tier = rarity.byId[target];
-  const roll = { common: .25, rare: .65, epic: .875, legendary: .975 }[tier];
-  let i = 0; const values = [roll, 0, 0];
-  const result = core.draw([1, ...pool.filter(id => id !== target)], 0, () => values[i++]);
-  assert.equal(result.id, target);
-}
 const onlyCommon = core.draw([1, 2, ...pool.filter(id => rarity.byId[id] !== 'common')], 5, () => 0);
-assert.equal(onlyCommon.duplicate, false); assert.equal(onlyCommon.tier, 'common');
+assert.equal(onlyCommon.duplicate, true); assert.equal(onlyCommon.tier, 'common');
 let seed = 0x12345678;
 const seeded = () => { seed = (1664525 * seed + 1013904223) >>> 0; return seed / 0x100000000; };
-const simState = [1, 2, 4, 23, 19]; let freshCount = 0, tierCounts = { common:0, rare:0, epic:0, legendary:0 }, newByTier = { common:0, rare:0, epic:0, legendary:0 };
-for (let i=0;i<100000;i++) { const d=core.draw(simState,0,seeded); tierCounts[d.tier]++; if (!d.duplicate) { freshCount++; newByTier[d.tier]++; } }
-assert.ok(Math.abs(freshCount / 100000 - 0.65) < 0.012);
+const simState = [1, 2, 4, 23, 19]; let tierCounts = { common:0, rare:0, epic:0, legendary:0 };
+for (let i=0;i<100000;i++) { const d=core.draw(simState,0,seeded,true); tierCounts[d.tier]++; }
 for (const [tier, expected] of Object.entries({common:.5,rare:.3,epic:.15,legendary:.05})) {
   assert.ok(Math.abs(tierCounts[tier] / 100000 - expected) < .006);
-  assert.ok(Math.abs(newByTier[tier] / tierCounts[tier] - .65) < .025);
 }
 
 // Fresh profile and the legacy demo migration.
@@ -189,7 +178,7 @@ overlayFlow.elements.get('skipButton').fire('click');
 
 // A duplicate charges 100, refunds exactly 20, and only records once.
 assert.equal(fresh.api.awardCoins(100, 'test setup', 'q-2').coins, 100);
-fresh.randoms.push(0.1, 0.999, 0);
+fresh.randoms.push(0, 0);
 fresh.elements.get('drawButton').fire('click');
 state = fresh.api.getState();
 assert.equal(state.coins, 20); assert.deepEqual(Array.from(state.collected), [1,2]);
@@ -299,7 +288,7 @@ assert.doesNotMatch(practiceCss, /timer-wiggle/);
 assert.match(practiceCss, /\.timer-companion img\{[^}]*animation:companion-bob/);
 for (const exerciseHtml of exercisePages) {
   assert.match(exerciseHtml, /practice-exercises\.css/);
-  assert.match(exerciseHtml, /GAME\.awardCoins\(pendingCoins/);
+  assert.match(exerciseHtml, /GAME\.awardCoins\(totalAward/);
   assert.match(exerciseHtml, /:completion/);
   assert.doesNotMatch(exerciseHtml, /GAME\.chargeCoins\(5/);
   assert.match(exerciseHtml, /id="abandonDialog"/);
@@ -322,7 +311,7 @@ for (const exerciseHtml of exercisePages) {
   new vm.Script(inline[1]);
 }
 assert.match(shopHtml, /href="practice.html"/); assert.match(galleryHtml, /href="practice.html"/);
-assert.match(exercisePages[1], /abandoned===TOTAL\?'<div class="emptywrong neutral">本次 50 題皆已放棄/);
+assert.match(exercisePages[1], /abandoned===TOTAL\?`<div class="emptywrong neutral">本次 \$\{TOTAL\} 題皆已放棄/);
 assert.match(homeHtml, /學習樂園/); assert.match(homeHtml, /homeDisplayImage/); assert.match(homeHtml, /id="coins"/);
 assert.match(homeHtml, /收集夥伴/); assert.doesNotMatch(homeHtml, /收集柴柴/);
 assert.match(galleryHtml, /collection-topbar \.brand[\s\S]*?text-decoration:none/);

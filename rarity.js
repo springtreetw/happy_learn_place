@@ -2,9 +2,9 @@
 (() => {
   const groups = Object.freeze({
     common: Object.freeze({ label: '普通', chance: 50, ids: Object.freeze([1, 2, 3, 6, 9, 10, 11, 12, 13, 15, 17, 22, 24, 26, 27, 31]) }),
-    rare: Object.freeze({ label: '稀有', chance: 30, ids: Object.freeze([4, 5, 8, 14, 16, 18, 20, 21]) }),
-    epic: Object.freeze({ label: '史詩', chance: 15, ids: Object.freeze([23, 25, 28, 29, 30, 32]) }),
-    legendary: Object.freeze({ label: '傳說', chance: 5, ids: Object.freeze([7, 19]) })
+    rare: Object.freeze({ label: '稀有', chance: 30, ids: Object.freeze([4, 5, 8, 14, 16, 18, 20, 21, 35, 39, 40, 41, 42, 43, 44, 45]) }),
+    epic: Object.freeze({ label: '史詩', chance: 15, ids: Object.freeze([23, 25, 28, 29, 30, 32, 34, 36, 38, 46, 47]) }),
+    legendary: Object.freeze({ label: '傳說', chance: 5, ids: Object.freeze([7, 19, 33, 37]) })
   });
   const drawExcludedIds = Object.freeze([1]);
 
@@ -24,7 +24,7 @@
     ]));
   }
 
-  function validate(total = 32) {
+  function validate(total = 47) {
     const ids = Object.values(groups).flatMap(group => group.ids);
     const missing = Array.from({ length: total }, (_, index) => index + 1).filter(id => !byId[id]);
     if (ids.length !== total || missing.length) throw new Error(`Invalid Shiba rarity catalog: ${ids.length} entries; missing ${missing.join(', ')}`);
@@ -32,19 +32,19 @@
     return true;
   }
 
-  function drawPool() {
+  function drawPool(includeHidden = false) {
     const excluded = new Set(drawExcludedIds);
-    return Object.values(groups).flatMap(group => group.ids).filter(id => !excluded.has(id));
+    return Object.values(groups).flatMap(group => group.ids).filter(id => !excluded.has(id) && (includeHidden || id <= 32));
   }
 
-  function draw(random = Math.random) {
+  function draw(random = Math.random, includeHidden = false) {
     let roll = random() * 100;
     const selected = Object.entries(groups).find(([, group]) => {
       roll -= group.chance;
       return roll < 0;
     });
     const [, group] = selected || Object.entries(groups)[0];
-    const eligible = group.ids.filter(id => !drawExcludedIds.includes(id));
+    const eligible = group.ids.filter(id => !drawExcludedIds.includes(id) && (includeHidden || id <= 32));
     return eligible[Math.min(eligible.length - 1, Math.floor(random() * eligible.length))];
   }
 

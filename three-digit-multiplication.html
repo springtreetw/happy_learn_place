@@ -70,7 +70,7 @@ button{font:inherit;border:1px solid var(--line);border-radius:12px;padding:12px
 <dialog class="confirm-dialog" id="abandonQuestionDialog" aria-labelledby="abandonQuestionTitle"><form method="dialog"><span class="dialog-icon" aria-hidden="true">🪙</span><h2 id="abandonQuestionTitle">確定放棄本題？</h2><p>本次測驗暫存金額將扣除 5 枚（最低為 0），並顯示正確答案。</p><div class="dialog-actions"><button value="cancel">繼續作答</button><button class="primary danger-button" id="confirmAbandonQuestion" value="confirm">確認放棄本題</button></div></form></dialog>
 <div class="footer">數學練習園地 · 題目於每次開始時隨機產生</div>
 </main>
-<script src="app-config.js"></script><script src="rarity.js"></script><script src="gacha-core.js"></script><script src="app.js"></script>
+<script src="app-config.js"></script><script src="hidden-catalog.js"></script><script src="rarity.js"></script><script src="gacha-core.js"></script><script src="app.js"></script>
 <script>
 "use strict";
 let TOTAL=50; const $=id=>document.getElementById(id),GAME=window.SHIBA_GAME,PRACTICE_ID="three-digit-multiplication";
@@ -199,6 +199,7 @@ function generateSet(){
   return set;
 }
 function renderQuestion(){
+  $("next").textContent=current===TOTAL-1?"完成挑戰 ✓":"下一題 →";
   const q=questions[current];$("score").textContent=`${correctCount} / ${TOTAL}`;$("qnum").textContent=`第 ${current+1} / ${TOTAL} 題`;
   $("bar").style.width=`${current/TOTAL*100}%`;$("questionTimer").textContent=formatTime(questionSeconds);$("feedback").innerHTML="";
   $("check").disabled=true;$("next").disabled=true;$("showAnswer").disabled=false;$("equation").innerHTML="";
@@ -230,7 +231,7 @@ function renderQuestion(){
   if(q.solved||q.abandoned){
     [...$("equation").querySelectorAll("input.blank")].forEach(input=>input.disabled=true);
     $("next").disabled=false;$("check").disabled=true;$("showAnswer").disabled=true;
-    $("feedback").innerHTML=q.abandoned?'<div class="feedback bad">本題已放棄，答案已顯示。</div>':`<div class="feedback good">答對了！獲得 ${q.rewardAmount||0} 金幣，繼續下一題吧。</div>`;
+    $("feedback").innerHTML=q.abandoned?'<div class="feedback bad">本題已放棄，答案已顯示。</div>':`<div class="feedback good">答對了！獲得 ${q.rewardAmount||0} 金幣，${current===TOTAL-1?"完成挑戰吧。":"繼續下一題吧。"}</div>`;
   }
 }
 function updateCheckButton(){
@@ -322,7 +323,7 @@ function restoreProgress(){
   if(!saved||![1,2,3].includes(saved.version)||!Array.isArray(saved.questions))return;const savedTotal=saved.version===3?saved.totalQuestions:50;if(![10,20,50].includes(savedTotal)||saved.questions.length!==savedTotal||!Number.isInteger(saved.current)||saved.current<0||saved.current>=savedTotal)return;TOTAL=savedTotal;updateQuestionCount();
   challengeId=saved.challengeId;questions=saved.questions;current=saved.current;totalSeconds=saved.totalSeconds||0;questionSeconds=saved.questionSeconds||0;correctCount=saved.correctCount||0;started=Boolean(saved.started);finished=Boolean(saved.finished);
   pendingCoins=saved.version===2?(saved.pendingCoins||0):0;settled=Boolean(saved.settled);renderPendingCoins();
-  if(finished){finishQuiz();return}
+  if(finished){GAME.clearPracticeProgress(PRACTICE_ID);return}
   if(!started)return;
   $("startScreen").classList.add("hidden");$("results").style.display="none";$("quizCard").classList.remove("hidden");$("progressArea").classList.remove("hidden");$("tips").classList.add("hidden");
   $("totalTimer").textContent=formatTime(totalSeconds);renderQuestion();timerHandle=setInterval(tick,1000);

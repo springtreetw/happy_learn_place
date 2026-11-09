@@ -22,6 +22,8 @@
     .page-nav{display:flex;align-items:center;gap:8px}.nav-link{display:inline-flex;padding:9px 14px;border:1px solid var(--line);border-radius:99px;background:#fffefa;color:var(--muted);font-size:13px;font-weight:800;text-decoration:none;white-space:nowrap}.nav-link:hover,.nav-link.active{background:#2c302b;color:white;border-color:#2c302b}.nav-link[aria-disabled=true]{opacity:.55;cursor:not-allowed}
     @media(max-width:700px){.collection-topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;margin-bottom:28px}.collection-topbar .page-nav{grid-column:1/-1;grid-row:2;justify-content:center}.collection-topbar .brand{grid-column:1;grid-row:1}.collection-topbar #testModeTools{grid-column:2;grid-row:1}}
     @media(max-width:540px){.page-nav{gap:5px}.nav-link{padding:8px 10px;font-size:12px}.collection-topbar .brand{font-size:15px}.collection-topbar .brand-mark{width:38px;height:38px;font-size:23px}}
+    .unlock-reveal{position:fixed;z-index:30;left:50%;top:18%;transform:translateX(-50%);padding:18px 28px;border:1px solid #f4c56c;border-radius:18px;background:linear-gradient(135deg,#fff6cf,#ffd982);color:#70471b;font-size:clamp(20px,4vw,30px);font-weight:950;letter-spacing:.04em;box-shadow:0 16px 48px #57421d45;animation:unlock-pop .55s cubic-bezier(.2,.8,.2,1) both}@keyframes unlock-pop{from{opacity:0;translate:0 16px;scale:.85}to{opacity:1;translate:0 0;scale:1}}
+    .unlock-reveal{inset:0;z-index:10000;display:grid;place-items:center;padding:24px;left:auto;top:auto;transform:none;border:0;border-radius:0;background:#251c1c88;color:inherit;font-size:inherit;font-weight:inherit;letter-spacing:normal;box-shadow:none;pointer-events:none;animation:unlock-overlay 3.8s ease both}.unlock-reveal-message{max-width:min(90vw,720px);padding:26px 38px;border:2px solid #f4c56c;border-radius:24px;background:linear-gradient(135deg,#fff9dc,#ffd982);color:#70471b;text-align:center;font-size:clamp(23px,5vw,40px);font-weight:950;letter-spacing:.05em;line-height:1.45;box-shadow:0 20px 70px #1c162d88;animation:unlock-message 3.8s cubic-bezier(.2,.8,.2,1) both}@keyframes unlock-overlay{0%,88%{opacity:1}100%{opacity:0}}@keyframes unlock-message{0%{opacity:0;transform:scale(.7) translateY(18px)}10%{opacity:1;transform:scale(1.04) translateY(0)}16%,82%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.96) translateY(-8px)}}
   </style>
 </head>
 <body>
@@ -31,11 +33,12 @@
     <section class="display-panel"><div class="display-avatar"><img id="displayImage" src="assets/shiba/shiba_01.png" alt="目前展示的柴犬"></div><div class="display-copy"><p class="eyebrow" id="displayStatus">目前展示</p><h2 id="displayName">造型 01</h2><p>選一隻喜歡的柴柴，讓牠陪著你。</p></div><div class="display-actions"><button class="soft-button" id="chooseDisplay">從圖鑑挑選　↗</button></div></section>
     <nav class="toolbar" aria-label="圖鑑篩選"><button class="filter active" data-filter="all">全部 32</button><button class="filter" data-filter="collected">已收藏 <span id="filterCount">0</span></button><span class="toolbar-spacer"></span><input id="search" class="search" type="search" placeholder="搜尋造型編號" aria-label="搜尋造型"></nav>
     <section class="grid" id="grid" aria-live="polite"></section>
+    <section id="hiddenCollectionSection" hidden style="margin-top:48px"><div class="hero"><div><p class="eyebrow">SEALED COLLECTION</p><h1>鬼滅之刃柴犬版</h1><p>完成柴柴圖鑑後解鎖的隱藏夥伴。</p></div><div class="progress-card"><div class="progress-line"><strong id="hiddenCollectionCount">0 / 15</strong><span id="hiddenCollectionPercent">完成 0%</span></div><div class="track"><i id="hiddenCollectionProgress" style="width:0%"></i></div></div></div><section class="grid" id="hiddenGrid" aria-live="polite"></section></section>
     <aside class="demo-footer">圖鑑與轉蛋商店共用收藏與金幣，資料會自動儲存在此瀏覽器。造型 01 是贈送的原型。</aside>
   </main>
   <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><article class="modal"><button class="close" id="closeModal" aria-label="關閉">×</button><div class="modal-art"><img id="modalImage" alt=""></div><div class="modal-content"><p class="eyebrow">SHIBA · COLLECTION</p><h2 id="modalTitle">原型</h2><div class="modal-actions"><button class="secondary" id="displayButton">設為展示柴柴</button></div></div></article></div>
   <div class="toast" id="toast" role="status"></div>
-  <script src="app-config.js"></script>
+  <script src="app-config.js"></script><script src="hidden-catalog.js"></script>
   <script src="rarity.js"></script>
   <script src="gacha-core.js"></script>
   <script src="app.js"></script>

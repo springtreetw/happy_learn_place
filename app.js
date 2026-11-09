@@ -1,28 +1,31 @@
 (() => {
   'use strict';
-  const TOTAL = 32, COST = 100, REFUND = 20, PITY_THRESHOLD = 10, TEST_MODE = Boolean(window.SHIBA_BUILD_CONFIG && window.SHIBA_BUILD_CONFIG.testMode), FORMAL_KEY = 'shibaGallery.stage3.v1', TEST_KEY = 'shibaGallery.stage3.test.v1', KEY = TEST_MODE ? TEST_KEY : FORMAL_KEY, LEGACY_KEY = 'shibaGallery.stage2.v2';
+  const TOTAL = 32, HIDDEN_TOTAL = 15, MAX_ID = 47, COST = 100, REFUND = 20, PITY_THRESHOLD = 10, TEST_MODE = Boolean(window.SHIBA_BUILD_CONFIG && window.SHIBA_BUILD_CONFIG.testMode), FORMAL_KEY = 'shibaGallery.stage3.v1', TEST_KEY = 'shibaGallery.stage3.test.v1', KEY = TEST_MODE ? TEST_KEY : FORMAL_KEY, LEGACY_KEY = 'shibaGallery.stage2.v2';
   const DEMO = [1, 4, 9, 12, 18, 25];
   const NAMES = ['原型','休閒','水手','探險家','星星魔法師','工裝小夥伴','天使','野外探險家','花田攝影師','棒球選手','青蛙雨衣','小廚師','小醫生','消防員','警察','小偵探','冬日暖暖裝','馴鹿','聖誕老人','南瓜精靈','吸血鬼','浴衣女孩','魔術師','搖滾吉他手','黑衣忍者','海灘玩水','田園小農','太空人','恐龍連身衣','獨角獸','新年福氣裝','小國王'];
-  const RARITY = window.SHIBA_RARITY;
+  const RARITY = window.SHIBA_RARITY, HIDDEN = window.HIDDEN_CATALOG.shiba;
   const GACHA_CORE = window.SHIBA_GACHA_CORE;
   const $ = id => document.getElementById(id), pad = n => String(n).padStart(2, '0');
-  const asset = id => `assets/shiba/shiba_${pad(id)}.png`, name = id => NAMES[id - 1];
+  const asset = id => id <= TOTAL ? `assets/shiba/shiba_${pad(id)}.png` : `assets/shiba_hdn_01/${HIDDEN[id - TOTAL - 1]?.file || ""}`, name = id => id <= TOTAL ? NAMES[id - 1] : HIDDEN[id - TOTAL - 1]?.name || `夥伴 ${pad(id)}`, cardNo = id => id <= TOTAL ? pad(id) : `隱藏 ${pad(id - TOTAL)}`;
   function displayDescriptor(series, id, details = {}) {
     if (series === 'shiba') {
       const rarity = RARITY.byId[id];
       return { series: 'shiba', seriesName: '柴柴', id, name: name(id), rarity, rarityLabel: RARITY.groups[rarity].label, image: asset(id) };
     }
     const rarity = ['common', 'rare', 'epic', 'legendary'].includes(details.rarity) ? details.rarity : 'common';
-    return { series: 'badcat', seriesName: '壞壞貓', id, name: String(details.name || `夥伴 ${pad(id)}`).slice(0, 50), rarity, rarityLabel: String(details.rarityLabel || '普通').slice(0, 20), image: `assets/badcat/cat_${pad(id)}.png` };
+    const hidden = id > TOTAL, item = hidden ? window.HIDDEN_CATALOG.badcat[id - TOTAL - 1] : null;
+    return { series: 'badcat', seriesName: '壞壞貓', id, name: String(details.name || item?.name || `夥伴 ${cardNo(id)}`).slice(0, 50), rarity: item?.tier || rarity, rarityLabel: String(details.rarityLabel || RARITY.groups[item?.tier || rarity].label).slice(0, 20), image: details.image || (hidden ? `assets/badcat_hdn_01/${item?.file || ''}` : `assets/badcat/cat_${pad(id)}.png`) };
   }
   function normalizeDisplayDescriptor(value, fallbackId) {
-    if (value?.series === 'badcat' && Number.isInteger(value.id) && value.id >= 1 && value.id <= TOTAL && typeof value.name === 'string') return displayDescriptor('badcat', value.id, value);
-    if (value?.series === 'shiba' && Number.isInteger(value.id) && value.id >= 1 && value.id <= TOTAL) return displayDescriptor('shiba', value.id);
+    if (value?.series === 'badcat' && Number.isInteger(value.id) && value.id >= 1 && value.id <= MAX_ID && typeof value.name === 'string') return displayDescriptor('badcat', value.id, value);
+    if (value?.series === 'shiba' && Number.isInteger(value.id) && value.id >= 1 && value.id <= MAX_ID) return displayDescriptor('shiba', value.id);
     return displayDescriptor('shiba', fallbackId);
   }
-  const validIds = ids => [...new Set(ids.filter(id => Number.isInteger(id) && id >= 1 && id <= TOTAL))];
-  const fresh = () => ({ version: 3, initialized: true, coins: TEST_MODE ? 100000 : 0, collected: [1], display: 1, activeDisplay: displayDescriptor('shiba', 1), drawHistory: [], awardTransactions: [], chargeTransactions: [], mathPractice: null, practiceProgress: {}, consecutiveDuplicates: 0, consecutiveNoEpicPlus: 0 });
+  const validIds = ids => [...new Set(ids.filter(id => Number.isInteger(id) && id >= 1 && id <= MAX_ID))];
+  const fresh = () => ({ version: 3, initialized: true, coins: TEST_MODE ? 100000 : 0, collected: [1], display: 1, activeDisplay: displayDescriptor('shiba', 1), drawHistory: [], awardTransactions: [], chargeTransactions: [], mathPractice: null, practiceProgress: {}, consecutiveDuplicates: 0, consecutiveNoEpicPlus: 0, hiddenGalleryNoticeSeen: false, hiddenGachaNoticeSeen: false, hiddenNoticeVersion: 4 });
   let drawing = false, activeDraw = null, activeItem = 1, animationTimers = [], toastTimer;
+  const baseOwnedCount = value => value.collected.filter(id => id <= TOTAL).length;
+  const hiddenUnlocked = value => baseOwnedCount(value) >= TOTAL;
 
   function readState() {
     try {
@@ -35,7 +38,7 @@
         if (!result.collected.includes(result.display)) result.display = 1;
         result.activeDisplay = normalizeDisplayDescriptor(result.activeDisplay, result.display);
         if (!Array.isArray(result.drawHistory)) result.drawHistory = [];
-        result.drawHistory = result.drawHistory.filter(entry => entry && Number.isInteger(entry.id) && entry.id >= 1 && entry.id <= TOTAL && RARITY.byId[entry.id]);
+        result.drawHistory = result.drawHistory.filter(entry => entry && Number.isInteger(entry.id) && entry.id >= 1 && entry.id <= MAX_ID && RARITY.byId[entry.id]);
         if (!result.drawHistory.length && saved.lastDraw && Number.isInteger(saved.lastDraw.id) && RARITY.byId[saved.lastDraw.id]) {
           const at = Number.isFinite(saved.lastDraw.at) ? saved.lastDraw.at : Date.now();
           result.drawHistory = [{ id: saved.lastDraw.id, tier: RARITY.byId[saved.lastDraw.id], duplicate: Boolean(saved.lastDraw.duplicate), cost: COST, refund: saved.lastDraw.duplicate ? REFUND : 0, coinsAfter: result.coins, at, transactionId: `recovered-${at}-${saved.lastDraw.id}` }];
@@ -48,6 +51,9 @@
         if (!result.practiceProgress || typeof result.practiceProgress !== 'object' || Array.isArray(result.practiceProgress)) result.practiceProgress = {};
         result.consecutiveDuplicates = Number.isSafeInteger(result.consecutiveDuplicates) && result.consecutiveDuplicates >= 0 ? result.consecutiveDuplicates : 0;
         result.consecutiveNoEpicPlus = Number.isSafeInteger(result.consecutiveNoEpicPlus) && result.consecutiveNoEpicPlus >= 0 ? result.consecutiveNoEpicPlus : 0;
+        result.hiddenGalleryNoticeSeen = saved.hiddenNoticeVersion === 4 && Boolean(result.hiddenGalleryNoticeSeen);
+        result.hiddenGachaNoticeSeen = saved.hiddenNoticeVersion === 4 && Boolean(result.hiddenGachaNoticeSeen);
+        result.hiddenNoticeVersion = 4;
         return result;
       }
     } catch (_) {}
@@ -75,7 +81,7 @@
   function persist(next) {
     const normalized = {
       version: 3, initialized: true, coins: next.coins,
-      collected: validIds(next.collected), display: next.display,
+      collected: validIds(next.collected), display: next.display, hiddenGalleryNoticeSeen: Boolean(next.hiddenGalleryNoticeSeen), hiddenGachaNoticeSeen: Boolean(next.hiddenGachaNoticeSeen), hiddenNoticeVersion: 4,
       activeDisplay: normalizeDisplayDescriptor(next.activeDisplay, next.display),
       drawHistory: Array.isArray(next.drawHistory) ? next.drawHistory.slice(0, 30) : [],
       awardTransactions: Array.isArray(next.awardTransactions) ? next.awardTransactions : [],
@@ -100,7 +106,7 @@
   function updateBalance() {
     if ($('coins')) $('coins').textContent = state.coins.toLocaleString('zh-Hant');
     if ($('testModeTools')) $('testModeTools').hidden = !TEST_MODE;
-    if ($('newChanceLabel')) $('newChanceLabel').textContent = `新收藏機率 ${GACHA_CORE.newChance(state.collected, state.consecutiveDuplicates).toLocaleString('zh-Hant', { maximumFractionDigits: 2 })}%`;
+    
     if ($('drawButton')) {
       const pityReady = state.consecutiveNoEpicPlus >= PITY_THRESHOLD;
       const pityActive = pityReady || Boolean(activeDraw && activeDraw.pity);
@@ -115,13 +121,13 @@
   function renderHome() {
     const companion = normalizeDisplayDescriptor(state.activeDisplay, state.display);
     if ($('homeDisplayImage')) { $('homeDisplayImage').src = companion.image; $('homeDisplayImage').alt = `目前展示的${companion.seriesName}：${companion.name}`; }
-    if ($('homeDisplayName')) $('homeDisplayName').textContent = `${companion.name} · ${pad(companion.id)}`;
+    if ($('homeDisplayName')) $('homeDisplayName').textContent = `${companion.name} · ${cardNo(companion.id)}`;
     if ($('homeFeatured')?.setAttribute) $('homeFeatured').setAttribute('aria-label', `目前展示的${companion.seriesName}：${companion.name}`);
   }
   function renderPracticeMenu() {
     const companion = normalizeDisplayDescriptor(state.activeDisplay, state.display);
     if ($('practiceDisplayImage')) { $('practiceDisplayImage').src = companion.image; $('practiceDisplayImage').alt = `目前展示的${companion.seriesName}：${companion.name}`; }
-    if ($('practiceDisplayName')) $('practiceDisplayName').textContent = `${companion.name} · ${pad(companion.id)}`;
+    if ($('practiceDisplayName')) $('practiceDisplayName').textContent = `${companion.name} · ${cardNo(companion.id)}`;
   }
   function renderGallery() {
     if (!$('grid')) return;
@@ -130,26 +136,54 @@
     const ids = Array.from({ length: TOTAL }, (_, i) => i + 1).filter(id =>
       (filter === 'all' || state.collected.includes(id)) && (!query || pad(id).includes(query) || String(id).includes(query) || (state.collected.includes(id) && name(id).toLowerCase().includes(query)))
     );
-    $('count').textContent = `${state.collected.length} / ${TOTAL}`;
-    $('filterCount').textContent = state.collected.length;
-    const percentage = Math.round(state.collected.length / TOTAL * 100);
+    const baseCount = baseOwnedCount(state);
+    $('count').textContent = `${baseCount} / ${TOTAL}`;
+    $('filterCount').textContent = baseCount;
+    const percentage = Math.round(baseCount / TOTAL * 100);
     $('percent').textContent = `完成 ${percentage}%`; $('progress').style.width = `${percentage}%`;
     const companion = normalizeDisplayDescriptor(state.activeDisplay, state.display);
     const ownLastIsCurrent = companion.series === 'shiba' && companion.id === state.display;
-    $('displayImage').src = asset(state.display); $('displayName').textContent = `${name(state.display)} · ${pad(state.display)}`;
+    $('displayImage').src = asset(state.display); $('displayName').textContent = `${name(state.display)} · ${cardNo(state.display)}`;
     if ($('displayStatus')) $('displayStatus').textContent = ownLastIsCurrent ? '目前展示' : '上次展示';
     $('grid').innerHTML = ids.length ? ids.map(id => {
       const owned = state.collected.includes(id), tier = RARITY.byId[id], label = RARITY.groups[tier].label;
       const pin = companion.series === 'shiba' && companion.id === id ? '目前展示' : state.display === id ? '上次展示' : '';
       return `<article class="card ${owned ? '' : 'locked'}" data-id="${id}" ${owned ? 'tabindex="0" role="button"' : 'aria-disabled="true"'} aria-label="${owned ? name(id) : '未解鎖造型'}，${owned ? '已收藏' : '尚未收藏，隱藏中'}"><div class="card-image">${owned ? `<img loading="lazy" src="${asset(id)}" alt="柴犬${name(id)}">` : '<span class="locked-art" aria-hidden="true"><span>?</span></span>'}${pin ? `<span class="display-pin">${pin}</span>` : ''}</div><div class="card-footer"><div><div class="card-title">${owned ? name(id) : '？？？'} · ${pad(id)}</div><div class="card-sub rarity-${tier}">${label}</div></div><span class="status ${owned ? '' : 'locked'}">${owned ? '✓ 已收藏' : '🔒 未解鎖'}</span></div></article>`;
     }).join('') : '<div class="empty">沒有符合的造型，試試名稱或編號吧。</div>';
+    renderHiddenCollection();
+  }
+  function renderHiddenCollection() {
+    const section = $('hiddenCollectionSection');
+    if (!section) return;
+    const unlocked = hiddenUnlocked(state), owned = state.collected.filter(id => id > TOTAL).length;
+    section.hidden = !unlocked;
+    if (!unlocked) return;
+    $('hiddenCollectionCount').textContent = `${owned} / ${HIDDEN_TOTAL}`;
+    const percent = Math.round(owned / HIDDEN_TOTAL * 100);
+    $('hiddenCollectionPercent').textContent = `完成 ${percent}%`;
+    $('hiddenCollectionProgress').style.width = `${percent}%`;
+    $('hiddenGrid').innerHTML = HIDDEN.map((item, index) => {
+      const id = TOTAL + index + 1, collected = state.collected.includes(id), tier = item.tier;
+      return `<article class="card ${collected ? '' : 'locked'}" data-id="${id}" ${collected ? 'tabindex="0" role="button"' : 'aria-disabled="true"'} aria-label="${collected ? item.name : '未解鎖角色'}，${collected ? '已收藏' : '尚未收藏'}"><div class="card-image">${collected ? `<img loading="lazy" src="${asset(id)}" alt="${item.name}">` : '<span class="locked-art" aria-hidden="true"><span>?</span></span>'}</div><div class="card-footer"><div><div class="card-title">${collected ? item.name : '？？？'} · ${cardNo(id)}</div><div class="card-sub rarity-${tier}">${RARITY.groups[tier].label}</div></div><span class="status ${collected ? '' : 'locked'}">${collected ? '✓ 已收藏' : '🔒 未解鎖'}</span></div></article>`;
+    }).join('');
+    if (!state.hiddenGalleryNoticeSeen) showUnlockNotice('gallery');
+  }
+  const unlockNoticeShowing = { gallery: false, gacha: false };
+  function showUnlockNotice(surface) {
+    const key = surface === 'gallery' ? 'hiddenGalleryNoticeSeen' : 'hiddenGachaNoticeSeen';
+    if (state[key] || unlockNoticeShowing[surface]) return;
+    const node = document.createElement('div');
+    node.className = 'unlock-reveal'; node.setAttribute('role', 'status'); node.setAttribute('aria-live', 'assertive');
+    const message = document.createElement('div'); message.className = 'unlock-reveal-message'; message.textContent = '封印解除！解鎖新圖鑑！';
+    node.appendChild(message); document.body.appendChild(node); unlockNoticeShowing[surface] = true;
+    setTimeout(() => { node.remove(); unlockNoticeShowing[surface] = false; persist({ ...state, [key]: true }); }, 3800);
   }
   function renderHistory() {
     if (!$('historyList')) return;
     const rows = state.drawHistory.filter(entry => !drawing || entry.transactionId !== activeDraw?.transactionId).slice(0, 8);
     $('historyList').innerHTML = rows.length ? rows.map(entry => {
       const tier = RARITY.byId[entry.id], time = new Date(entry.at).toLocaleString('zh-Hant', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-      return `<li class="history-item rarity-${tier}"><img src="${asset(entry.id)}" alt=""><span class="history-name">${name(entry.id)} · ${pad(entry.id)}<small>${RARITY.groups[tier].label} · ${time}</small></span><strong>${entry.duplicate ? '+20 🪙 重複' : '新收藏'}</strong></li>`;
+      return `<li class="history-item rarity-${tier}"><img src="${asset(entry.id)}" alt=""><span class="history-name">${name(entry.id)} · ${cardNo(entry.id)}<small>${RARITY.groups[tier].label} · ${time}</small></span><strong>${entry.duplicate ? '+20 🪙 重複' : '新收藏'}</strong></li>`;
     }).join('') : '<li class="history-empty">完成第一次轉蛋後，紀錄會顯示在這裡。</li>';
   }
   function showResult(entry) {
@@ -157,7 +191,7 @@
     const tier = RARITY.byId[entry.id];
     $('resultCard').className = `result-card result-overlay card rarity-${tier}`;
     $('resultImage').src = asset(entry.id); $('resultImage').alt = `柴柴${name(entry.id)}`;
-    $('resultName').textContent = `${name(entry.id)} · ${pad(entry.id)}`;
+    $('resultName').textContent = `${name(entry.id)} · ${cardNo(entry.id)}`;
     $('resultRarity').className = `card-sub rarity-${tier}`;
     $('resultRarity').textContent = `${RARITY.groups[tier].label} · ${tier === 'legendary' ? '傳說登場' : entry.duplicate ? '已收藏' : '新收藏'}`;
     $('resultMessage').className = `result-message${entry.duplicate ? ' is-duplicate' : ''}`;
@@ -168,7 +202,7 @@
     updateBalance(); renderHome(); renderPracticeMenu(); renderGallery(); renderHistory();
     if ($('rateText')) $('rateText').textContent = Object.values(RARITY.groups).map(group => `${group.label} ${group.chance}%`).join('　·　');
     if ($('oddsList')) $('oddsList').innerHTML = Object.entries(RARITY.groups).map(([tier, group]) => {
-      const available = group.ids.filter(id => !RARITY.drawExcludedIds.includes(id)).length;
+      const available = RARITY.drawPool(hiddenUnlocked(state)).filter(id => RARITY.byId[id] === tier).length;
       return `<li><span class="tier-dot ${tier}"></span><span>${group.label} <small>${available} 款</small></span><strong>${group.chance}%</strong></li>`;
     }).join('');
   }
@@ -224,10 +258,12 @@
   function createDraw(random = Math.random) {
     const pity = state.consecutiveNoEpicPlus >= PITY_THRESHOLD;
     if (!pity && state.coins < COST) return { ok: false, reason: 'insufficient' };
-    const outcome = pity ? GACHA_CORE.drawPity(state.collected, random) : GACHA_CORE.draw(state.collected, state.consecutiveDuplicates, random), { id, duplicate, tier } = outcome;
+    const includeHidden = hiddenUnlocked(state);
+    const outcome = pity ? GACHA_CORE.drawPity(state.collected, random, includeHidden) : GACHA_CORE.draw(state.collected, state.consecutiveDuplicates, random, includeHidden), { id, duplicate, tier } = outcome;
     const cost = pity ? 0 : COST;
     const at = Date.now(), transactionId = `draw-${at}-${Math.random().toString(36).slice(2, 9)}`;
-    const entry = { id, tier, duplicate, pity, newChance: outcome.newChance, cost, refund: duplicate ? REFUND : 0, coinsAfter: state.coins - cost + (duplicate ? REFUND : 0), at, transactionId };
+    const unlockTriggered = !hiddenUnlocked(state) && !duplicate && baseOwnedCount(state) === TOTAL - 1 && id <= TOTAL;
+    const entry = { id, tier, duplicate, pity, unlockTriggered, cost, refund: duplicate ? REFUND : 0, coinsAfter: state.coins - cost + (duplicate ? REFUND : 0), at, transactionId };
     const next = {
       ...state, coins: entry.coinsAfter,
       collected: duplicate ? [...state.collected] : [...state.collected, id],
@@ -251,7 +287,7 @@
     clearAnimationTimers(); drawing = false;
     if ($('gachaScene')) { $('gachaScene').classList.remove('is-running'); $('gachaScene').dataset.phase = 'idle'; }
     const entry = activeDraw; activeDraw = null;
-    render(); showResult(entry);
+    render(); showResult(entry); if (entry.unlockTriggered || hiddenUnlocked(state)) showUnlockNotice('gacha');
   }
   function startAnimation(entry) {
     if (!$('gachaScene')) { showResult(entry); return; }
@@ -282,7 +318,7 @@
   }
 
   function setDisplayCharacter(selection) {
-    if (!selection || !['shiba', 'badcat'].includes(selection.series) || !Number.isInteger(selection.id) || selection.id < 1 || selection.id > TOTAL) return { ok: false, reason: 'invalid' };
+    if (!selection || !['shiba', 'badcat'].includes(selection.series) || !Number.isInteger(selection.id) || selection.id < 1 || selection.id > MAX_ID) return { ok: false, reason: 'invalid' };
     let activeDisplay;
     if (selection.series === 'shiba') {
       if (!state.collected.includes(selection.id)) return { ok: false, reason: 'not-collected' };
@@ -295,7 +331,7 @@
     if (!persist(next)) return { ok: false, reason: 'storage' };
     render(); return { ok: true, activeDisplay: { ...activeDisplay } };
   }
-  window.SHIBA_GAME = Object.freeze({ awardCoins, chargeCoins, saveMathPractice, getPracticeProgress, savePracticeProgress, clearPracticeProgress, getState: () => JSON.parse(JSON.stringify(state)), getDisplayCharacter: () => ({ ...normalizeDisplayDescriptor(state.activeDisplay, state.display) }), setDisplayCharacter, drawPool: () => RARITY.drawPool().slice(), newChance: () => GACHA_CORE.newChance(state.collected, state.consecutiveDuplicates), testMode: TEST_MODE, COST, REFUND });
+  window.SHIBA_GAME = Object.freeze({ awardCoins, chargeCoins, saveMathPractice, getPracticeProgress, savePracticeProgress, clearPracticeProgress, getState: () => JSON.parse(JSON.stringify(state)), getDisplayCharacter: () => ({ ...normalizeDisplayDescriptor(state.activeDisplay, state.display) }), setDisplayCharacter, drawPool: () => RARITY.drawPool(hiddenUnlocked(state)).slice(), hiddenUnlocked: () => hiddenUnlocked(state), testMode: TEST_MODE, COST, REFUND });
   window.SHIBA_GACHA = window.SHIBA_GAME;
   window.addShibaCoins = awardCoins;
 
@@ -312,6 +348,10 @@
     $('search').addEventListener('input', renderGallery);
     $('chooseDisplay').addEventListener('click', () => { document.querySelector('#grid .card:not(.locked)')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); $('search').focus(); });
   }
+  if ($('hiddenGrid')) {
+    $('hiddenGrid').addEventListener('click', event => { const card = event.target.closest('.card'); if (card && !card.classList.contains('locked')) openModal(Number(card.dataset.id)); });
+    $('hiddenGrid').addEventListener('keydown', event => { const card = event.target.closest('.card'); if (card && !card.classList.contains('locked') && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); openModal(Number(card.dataset.id)); } });
+  }
   if ($('drawButton')) $('drawButton').addEventListener('click', attemptDraw);
   if ($('closeResult')) $('closeResult').addEventListener('click', () => { if (!drawing && $('resultCard')) $('resultCard').hidden = true; });
   if ($('skipButton')) $('skipButton').addEventListener('click', finishAnimation);
@@ -326,11 +366,12 @@
 
   persist(state);
   render();
+  if ($('gachaScene') && hiddenUnlocked(state)) showUnlockNotice('gacha');
 
   function openModal(id) {
     if (!state.collected.includes(id)) return;
     activeItem = id; $('modalImage').src = asset(id); $('modalImage').alt = `柴犬${name(id)}`;
-    $('modalTitle').textContent = `${name(id)} · ${pad(id)}`; $('modalTitle').className = `rarity-${RARITY.byId[id]}`;
+    $('modalTitle').textContent = `${name(id)} · ${cardNo(id)}`; $('modalTitle').className = `rarity-${RARITY.byId[id]}`;
     syncModal(); $('overlay').classList.add('open'); $('closeModal').focus();
   }
   function syncModal() { const current = state.activeDisplay.series === 'shiba' && state.activeDisplay.id === activeItem; $('displayButton').textContent = current ? '目前展示中 ✓' : '設為展示柴柴'; $('displayButton').disabled = current; }
