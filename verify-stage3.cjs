@@ -304,6 +304,7 @@ for (const exerciseHtml of exercisePages) {
   assert.match(exerciseHtml, /pendingCoinDisplay"\)\.textContent=pendingCoins\.toLocaleString/);
   assert.match(exerciseHtml, /pendingCoins\+=reward;correctCount\+\+\}\s*saveProgress\(\);renderPendingCoins\(\)/);
   assert.match(exerciseHtml, /savePracticeProgress/);
+  assert.match(exerciseHtml, /pendingCoins=saved\.pendingCoins\|\|0/);
   assert.match(exerciseHtml, /放棄題數/);
   assert.match(exerciseHtml, /href="practice\.html"/);
   const inline = exerciseHtml.match(/<script>\s*"use strict";([\s\S]*?)<\/script>/);
