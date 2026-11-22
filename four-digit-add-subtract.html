@@ -142,7 +142,7 @@ function renderQuestion(){
       const input=document.createElement("input");input.className="digit";input.inputMode="numeric";input.autocomplete="off";input.maxLength=1;
       input.setAttribute("aria-label",`${rowLabels[rowIndex]}第${["千","百","十","個"][colIndex]}位`);
       if(q.mask[rowIndex][colIndex]){
-        input.classList.add("blank");input.type="text";input.dataset.row=rowIndex;input.dataset.col=colIndex;input.value=q.answers[rowIndex*4+colIndex]||"";
+        input.classList.add("blank");input.type="text";input.dataset.row=rowIndex;input.dataset.col=colIndex;input.dataset.place=String(3-colIndex);input.value=q.answers[rowIndex*4+colIndex]||"";
         input.addEventListener("input",()=>{
           input.value=input.value.replace(/[^0-9]/g,"").slice(-1);q.answers[rowIndex*4+colIndex]=input.value;
           $("feedback").innerHTML="";updateCheckButton();saveProgress();
@@ -154,11 +154,21 @@ function renderQuestion(){
     if(rowIndex===1){const rule=document.createElement("hr");rule.className="rule";$("equation").appendChild(rule)}
   });
   updateCheckButton();
+  wireAnswerFocus();
   if(q.solved||q.abandoned){
     [...$("equation").querySelectorAll("input.blank")].forEach(input=>input.disabled=true);
     $("next").disabled=false;$("check").disabled=true;$("showAnswer").disabled=true;
     $("feedback").innerHTML=q.abandoned?'<div class="feedback bad">本題已放棄，答案已顯示。</div>':`<div class="feedback good">答對了！獲得 ${q.rewardAmount||0} 金幣，繼續下一題吧。</div>`;
   }
+}
+function wireAnswerFocus(){
+  const blanks=[...$("equation").querySelectorAll("input.blank")].sort((a,b)=>Number(a.dataset.place)-Number(b.dataset.place)||Number(a.dataset.row)-Number(b.dataset.row));
+  blanks.forEach((input,index)=>input.addEventListener("input",()=>{const next=blanks.slice(index+1).find(field=>!field.value);if(input.value)next?.focus()}));
+  if(!questions[current].solved&&!questions[current].abandoned)(blanks.find(input=>!input.value)||blanks[0])?.focus();
+}
+function focusFirstAnswerBlank(){
+  const first=[...$("equation").querySelectorAll("input.blank")].sort((a,b)=>Number(a.dataset.place)-Number(b.dataset.place)||Number(a.dataset.row)-Number(b.dataset.row))[0];
+  first?.focus();
 }
 function updateCheckButton(){
   const blanks=[...$("equation").querySelectorAll("input.blank")];
@@ -246,7 +256,7 @@ $("startButton").addEventListener("click",startQuiz);$("check").addEventListener
 $("clear").addEventListener("click",()=>{
   const q=questions[current];q.answers=Array(12).fill("");
   [...$("equation").querySelectorAll("input.blank")].forEach(input=>input.value="");
-  $("feedback").innerHTML="";updateCheckButton();saveProgress();const first=$("equation").querySelector("input.blank");if(first)first.focus();
+  $("feedback").innerHTML="";updateCheckButton();saveProgress();focusFirstAnswerBlank();
 });
 $("restart").addEventListener("click",()=>{
   GAME.clearPracticeProgress(PRACTICE_ID);challengeId=null;questions=[];started=false;finished=false;
@@ -269,3 +279,4 @@ window.addEventListener("storage",event=>{if(event.key?.includes("stage3"))rende
 </script>
 </body>
 </html>
+

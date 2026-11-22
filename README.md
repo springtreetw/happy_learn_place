@@ -10,7 +10,8 @@
 - `badcat-collection.html`：獨立壞壞貓圖鑑與展示夥伴選擇。
 - `badcat-shop.html`：暗夜紫紅配色的壞壞貓轉蛋商店。
 - `practice.html`：練習園地選單。
-- `four-digit-add-subtract.html`、`three-digit-multiplication.html`：兩種可選 10、20 或 50 題的數學練習。
+- `four-digit-add-subtract.html`、`three-digit-multiplication.html`、`two-digit-division.html`：可選 10、20 或 50 題的數學練習。
+- `exercise-layout.css`、`practice-exercises.css`：乘法與除法共用的練習頁面版型和視覺樣式。
 - `badcat-rarity.js`、`badcat-gacha-core.js`、`badcat-app.js`：壞壞貓稀有度、抽獎和獨立收藏資料；金幣交易呼叫共用 Stage 3 API。
 - `catalog-menu.css`、`badcat-collection.css`、`badcat-shop.css`、`layout-alignment.css`：系列選單及壞壞貓頁面樣式；共用版面尺寸與柴柴頁面對齊。
 - `assets/shiba/`：柴柴圖片 `shiba_01.png` 至 `shiba_32.png`。

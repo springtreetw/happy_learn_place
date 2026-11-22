@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>兩位數除以一位數填空</title>
+<link rel="stylesheet" href="exercise-layout.css">
+<link rel="stylesheet" href="practice-exercises.css">
+<style>
+.question-count-selector{display:flex;justify-content:center;gap:10px;margin:14px auto 4px}.question-count-selector .selected{background:var(--blue);border-color:var(--blue);color:#fff}.bonus-note{margin:7px auto 10px!important;font-size:13px!important;color:var(--muted)}
+.division-wrap{width:min(100%,390px);margin:22px auto 28px;padding:22px 18px;border-radius:16px;background:#f5f2ea}
+.long-division{width:max-content;max-width:100%;margin:auto}
+.division-body{display:flex;align-items:flex-start;gap:10px}
+.divisor{width:38px;height:53px;margin-top:70px;display:grid;place-items:center;font-size:25px;font-weight:650;color:#555a52}
+.division-column{display:flex;flex-direction:column;gap:0}
+.quotient-row{height:62px;display:flex;justify-content:flex-end;align-items:flex-end;gap:8px;padding:0 8px 7px 0}
+.quotient-row .digit{width:52px}
+.division-bracket{position:relative;padding:8px 8px 6px 22px;color:var(--ink)}
+.division-bracket::before{content:"";position:absolute;top:0;left:0;right:0;border-top:3px solid currentColor}
+.division-hook{position:absolute;left:0;top:0;width:20px;height:60px;overflow:visible;pointer-events:none}
+.division-hook path{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.dividend-row{display:flex;align-items:center;gap:8px}
+.dividend-row .digit{width:52px;height:53px}
+.product-row,.remainder-row{display:grid;grid-template-columns:repeat(2,52px);gap:8px;justify-content:end;padding-right:8px}
+.product-row{margin-top:7px}
+.product-row .digit,.remainder-row .digit{width:52px;height:53px}
+.division-rule{border:0;border-top:3px solid var(--ink);margin:9px 8px 7px 0}
+.remainder-row{margin-top:0}
+@media(max-width:430px){.question-count-selector{gap:7px}.question-count-selector button{min-width:72px;padding:9px 12px}.division-wrap{padding:19px 10px}.division-body{gap:7px}.divisor{width:30px;height:48px;margin-top:64px;font-size:22px}.quotient-row{height:57px;gap:6px;padding-right:6px}.quotient-row .digit,.dividend-row .digit,.product-row .digit,.remainder-row .digit{width:clamp(39px,13vw,50px);height:48px;font-size:22px}.division-bracket{padding:7px 6px 5px 19px}.division-hook{width:18px;height:56px}.division-hook path{transform:scale(.9,.93);transform-origin:top left}.dividend-row{gap:6px}.product-row,.remainder-row{grid-template-columns:repeat(2,clamp(39px,13vw,50px));gap:6px;padding-right:6px}.division-rule{margin-right:6px}}
+</style>
+</head>
+<body>
+<header class="site-header"><a class="site-brand" href="index.html"><span class="site-brand-mark" aria-hidden="true">🎡</span><span>學習樂園</span></a><div class="site-links"><a class="menu-button" href="practice.html">練習園地</a></div><div class="account-wallet" aria-live="polite"><span>目前金幣</span><strong id="coins">0</strong><span>🪙</span><span id="testModeTools" hidden><span class="test-badge">測試模式</span></span></div></header>
+<main>
+<header><div><h1>兩位數除以一位數填空</h1><div class="subtitle" id="subtitle">50 題隨機挑戰・每次重新開始都會產生新題目</div></div><div class="score"><strong id="score">0 / 50</strong><span>已答對題數</span></div></header>
+<section class="panel landing" id="startScreen"><div class="heroicon">➗</div><h2>除法填空挑戰</h2><p id="startDescription">每次開始隨機產生 50 題兩位數除以一位數的直式填空，包含整除與有餘數的題目。</p><div class="featuregrid"><div class="feature"><strong id="countFeature">50 題</strong>隨機除法題</div><div class="feature"><strong>商、積與餘數</strong>完成直式計算</div><div class="feature"><strong>錯題統計</strong>完成後檢視</div></div><p>填入商、除數乘以商的積，以及相減後的餘數。首次答對本次暫得 5 金幣；曾答錯後答對暫得 1 金幣。放棄本題扣 2 枚本次暫存金幣（最低為 0），完成整份測驗才會入帳。</p><div class="question-count-selector" role="group" aria-label="選擇題數"><button type="button" data-count="10">10 題</button><button type="button" data-count="20">20 題</button><button type="button" data-count="50" class="selected">50 題</button></div><p class="bonus-note" id="bonusNote">完成 50 題且全數答對，額外獲得 100 金幣。</p><button id="startButton" class="primary" style="width:100%;max-width:300px;margin-top:10px">開始挑戰 →</button></section>
+<div class="progress hidden" id="progressArea"><div class="bar" id="bar"></div></div>
+<section class="panel hidden" id="quizCard"><div class="topline"><span class="pill">除法</span><span class="qnum" id="qnum">第 1 / 50 題</span><button class="menu-button abandon-test" id="abandonQuiz">放棄測驗</button></div><div class="timerline"><div class="timer-companion"><img id="practiceCompanion" alt="目前展示的夥伴"><span id="practiceCompanionName"></span></div><span>本題時間 <strong id="questionTimer">00:00</strong></span><span>總計 <strong id="totalTimer">00:00</strong></span><span>目前金幣 <strong id="pendingCoinDisplay">0</strong> 🪙</span></div><div class="instruction">填入商、除數乘以商的積，以及相減後的餘數</div><div class="division-wrap"><div class="long-division"><div class="division-body"><div class="divisor" id="divisor"></div><div class="division-column"><div class="quotient-row" id="quotientRow" aria-label="商"></div><div class="division-bracket"><svg class="division-hook" viewBox="0 0 20 60" aria-hidden="true"><path d="M1 1 C18 12 18 48 1 59"/></svg><div class="dividend-row" id="dividendRow" aria-label="被除數"></div></div><div class="product-row" id="productRow" aria-label="除數乘商的積"></div><hr class="division-rule"><div class="remainder-row" aria-label="餘數"><span aria-hidden="true"></span><input class="digit blank" id="remainderInput" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="餘數"></div></div></div></div></div><div id="feedback" aria-live="polite"></div><div class="actions"><button id="check" class="primary" disabled>確認答案</button><button id="next" disabled>下一題 →</button></div><div class="secondary-actions"><button id="showAnswer">放棄本題（本次金幣 -2）</button><button id="clear">清除本題</button></div></section>
+<section class="panel results" id="results"><h2>挑戰完成！</h2><p id="resultMessage"></p><div class="summarygrid"><div class="metric"><strong id="finalCorrect">0 / 50</strong><span>答對題數</span></div><div class="metric"><strong id="finalWrong">0 題</strong><span>曾經答錯題數</span></div><div class="metric"><strong id="finalAbandoned">0 題</strong><span>放棄題數</span></div><div class="metric"><strong id="finalTime">00:00</strong><span>總作答時間</span></div></div><div class="wronglist"><h3>錯題列表</h3><div id="wrongList"></div></div><div class="actions"><button id="downloadCsv" class="primary">匯出作答紀錄 CSV</button><button id="restart">再挑戰一次 ↻</button></div></section>
+<section class="panel tips hidden" id="tips"><h2>作答規則</h2><p>兩位數被除數除以一位數除數，除數為 2 至 9，題目可能整除或有餘數。</p><p>請填商、除數乘以商的積，以及相減後的餘數；餘數必須小於除數。</p><p>首次答對暫得 5 金幣；曾答錯後答對暫得 1 金幣。放棄本題扣 2 枚本次暫存金幣，最低為 0。</p><p>完成所選題數後，剩餘金幣才會加入資產；放棄整份測驗則本次金幣全部作廢。50 題全對額外獲得 100 金幣。</p></section>
+<dialog class="confirm-dialog" id="abandonDialog" aria-labelledby="abandonTitle"><form method="dialog"><span class="dialog-icon" aria-hidden="true">🎡</span><h2 id="abandonTitle">確定放棄本次測驗？</h2><p>目前累積的 <strong id="abandonCoinAmount">0</strong> 枚金幣將全部作廢，不會加入資產。已完成進度也會清除。</p><div class="dialog-actions"><button value="cancel">繼續作答</button><button class="primary danger-button" id="confirmAbandon" value="confirm">放棄測驗</button></div></form></dialog>
+<dialog class="confirm-dialog" id="abandonQuestionDialog" aria-labelledby="abandonQuestionTitle"><form method="dialog"><span class="dialog-icon" aria-hidden="true">🪙</span><h2 id="abandonQuestionTitle">確定放棄本題？</h2><p>本次測驗暫存金額將扣除 2 枚（最低為 0），並顯示正確答案。</p><div class="dialog-actions"><button value="cancel">繼續作答</button><button class="primary danger-button" id="confirmAbandonQuestion" value="confirm">確認放棄本題</button></div></form></dialog>
+<div class="footer">數學練習園地 · 題目於每次開始時隨機產生</div>
+</main>
+<script src="app-config.js"></script><script src="hidden-catalog.js"></script><script src="rarity.js"></script><script src="gacha-core.js"></script><script src="app.js"></script>
+<script>
+"use strict";
+let TOTAL=50;const $=id=>document.getElementById(id),GAME=window.SHIBA_GAME,PRACTICE_ID="two-digit-division";
+let questions=[],current=0,totalSeconds=0,questionSeconds=0,timerHandle=null,started=false,finished=false,correctCount=0,challengeId=null,pendingCoins=0,settled=false;
+function formatTime(s){return `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`}
+function renderWallet(){$("coins").textContent=GAME.getState().coins.toLocaleString("zh-Hant");if(GAME.testMode)$("testModeTools").hidden=false}
+function renderCompanion(){const c=GAME.getDisplayCharacter();$("practiceCompanion").src=c.image;$("practiceCompanion").alt=`目前展示的${c.seriesName}：${c.name}`;const name=$("practiceCompanionName");name.textContent=c.name;name.className=`rarity-label rarity-${c.rarity}`}
+function renderPendingCoins(){$("pendingCoinDisplay").textContent=pendingCoins.toLocaleString("zh-Hant")}
+function updateCount(){const count=TOTAL;$("subtitle").textContent=`${count} 題隨機挑戰・每次重新開始都會產生新題目`;$("startDescription").textContent=`每次開始隨機產生 ${count} 題兩位數除以一位數的直式填空，包含整除與有餘數的題目。`;$("countFeature").textContent=`${count} 題`;$("score").textContent=`${correctCount} / ${count}`;document.querySelectorAll("[data-count]").forEach(b=>b.classList.toggle("selected",Number(b.dataset.count)===count));$("bonusNote").textContent=count===50?"完成 50 題且全數答對，額外獲得 100 金幣。":"此題數不適用 50 題全對獎勵。"}
+document.querySelectorAll("[data-count]").forEach(b=>b.addEventListener("click",()=>{if(started)return;TOTAL=Number(b.dataset.count);updateCount()}));
+function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+function generateQuestion(){const dividend=randInt(10,89),minDivisor=Math.max(2,Math.floor(dividend/10)+1),divisor=randInt(minDivisor,9),quotient=Math.floor(dividend/divisor),remainder=dividend%divisor;return {dividend,divisor,quotient,product:divisor*quotient,remainder,wrongEver:false,abandoned:false,solved:false,revealed:false,answers:[],productAnswers:["",""],remainderAnswer:"",seconds:0,rewardAmount:0}}
+function generateSet(){return Array.from({length:TOTAL},generateQuestion)}
+function saveProgress(){if(!challengeId)return {ok:false,reason:"no-session"};return GAME.savePracticeProgress(PRACTICE_ID,{version:4,totalQuestions:TOTAL,challengeId,questions,current,totalSeconds,questionSeconds,started,finished,correctCount,pendingCoins,settled})}
+function newChallengeId(){return `two-digit-division-${Date.now()}-${Math.random().toString(36).slice(2,10)}`}
+function completionBonus(){return TOTAL===50&&correctCount===50?100:0}
+function updateCheck(){const q=questions[current];const complete=q.answers.length===String(q.quotient).length&&q.answers.every(x=>x!=="")&&q.productAnswers?.length===2&&q.productAnswers.every(x=>x!=="")&&q.remainderAnswer!=="";$("check").disabled=!complete||q.solved||q.abandoned}
+function renderQuestion(){
+  const q=questions[current],disabled=q.solved||q.abandoned;
+  $("next").textContent=current===TOTAL-1?"完成挑戰 ✓":"下一題 →";$("score").textContent=`${correctCount} / ${TOTAL}`;$("qnum").textContent=`第 ${current+1} / ${TOTAL} 題`;$("bar").style.width=`${current/TOTAL*100}%`;$("questionTimer").textContent=formatTime(questionSeconds);$("feedback").innerHTML="";$("next").disabled=true;$("showAnswer").disabled=disabled;$("clear").disabled=disabled;$("divisor").textContent=q.divisor;
+  $("dividendRow").innerHTML="";$("quotientRow").innerHTML="";$("productRow").innerHTML="";q.product=q.product??q.divisor*q.quotient;if(q.solved||q.abandoned){q.answers=String(q.quotient).split("");q.productAnswers=String(q.product).padStart(2,"0").split("");q.remainderAnswer=String(q.remainder)}else{q.answers??=Array(String(q.quotient).length).fill("");q.productAnswers??=["",""]}
+  const addInput=(container,value,label,onValue)=>{const input=document.createElement("input");input.className="digit blank";input.inputMode="numeric";input.autocomplete="off";input.maxLength=1;input.value=value||"";input.disabled=disabled;input.setAttribute("aria-label",label);input.addEventListener("input",()=>{input.value=input.value.replace(/[^0-9]/g,"").slice(-1);onValue(input.value);$("feedback").innerHTML="";updateCheck();saveProgress()});container.appendChild(input)};
+  for(let i=0;i<String(q.quotient).length;i++)addInput($("quotientRow"),q.answers[i],`商第${String(q.quotient).length-i}位`,value=>q.answers[i]=value);
+  for(const digit of String(q.dividend)){const input=document.createElement("input");input.className="digit fixed";input.disabled=true;input.value=digit;input.tabIndex=-1;$("dividendRow").appendChild(input)}
+  for(let i=0;i<2;i++)addInput($("productRow"),q.productAnswers[i],`積的第${i===0?"十":"個"}位`,value=>q.productAnswers[i]=value);
+  $("remainderInput").value=q.remainderAnswer||"";$("remainderInput").disabled=disabled;$("remainderInput").oninput=()=>{$("remainderInput").value=$("remainderInput").value.replace(/[^0-9]/g,"").slice(-1);q.remainderAnswer=$("remainderInput").value;$("feedback").innerHTML="";updateCheck();saveProgress()};
+  const answerFields=[...$("quotientRow").querySelectorAll("input"),...$("productRow").querySelectorAll("input"),$("remainderInput")];
+  answerFields.forEach((field,index)=>field.addEventListener("input",()=>{if(field.value&&answerFields[index+1]&&!disabled)answerFields[index+1].focus()}));
+  if(!disabled)(answerFields.find(field=>!field.value)||answerFields[0])?.focus();
+  if(disabled){$("next").disabled=false;$("check").disabled=true;$("feedback").innerHTML=q.abandoned?`<div class="feedback bad">本題已放棄。${q.dividend} ÷ ${q.divisor} = ${q.quotient}；${q.divisor} × ${q.quotient} = ${q.product}；餘 ${q.remainder}。</div>`:`<div class="feedback good">答對了！本次暫得 ${q.rewardAmount} 金幣。${q.dividend} ÷ ${q.divisor} = ${q.quotient}；${q.divisor} × ${q.quotient} = ${q.product}；餘 ${q.remainder}。</div>`}else updateCheck()
+}function checkAnswer(){if($("check").disabled)return;const q=questions[current],answer=Number(q.answers.join("")),productAnswer=Number(q.productAnswers.join("")),rem=Number(q.remainderAnswer);if(answer!==q.quotient||productAnswer!==q.product||rem!==q.remainder){q.wrongEver=true;saveProgress();$("feedback").innerHTML='<div class="feedback bad">答案還不正確，請檢查商、乘積和餘數後再試一次。</div>';$("check").disabled=true;return}const reward=q.wrongEver?1:5;q.solved=true;q.rewardAmount=reward;correctCount++;pendingCoins+=reward;saveProgress();renderPendingCoins();$("score").textContent=`${correctCount} / ${TOTAL}`;$("feedback").innerHTML=`<div class="feedback good">答對了！本次測驗暫得 ${reward} 金幣，完成 ${TOTAL} 題後結算。</div>`;[...$("quotientRow").querySelectorAll("input"),...$("productRow").querySelectorAll("input")].forEach(i=>i.disabled=true);$("remainderInput").disabled=true;$("check").disabled=true;$("next").disabled=false;$("showAnswer").disabled=true;$("clear").disabled=true}function nextQuestion(){const q=questions[current];if(!q.solved&&!q.revealed)return;q.seconds=questionSeconds;if(current===TOTAL-1){finishQuiz();return}current++;questionSeconds=0;renderQuestion();saveProgress()}
+function tick(){if(!started||finished)return;totalSeconds++;questionSeconds++;$("totalTimer").textContent=formatTime(totalSeconds);$("questionTimer").textContent=formatTime(questionSeconds);saveProgress()}
+function startQuiz(){if(timerHandle)clearInterval(timerHandle);challengeId=newChallengeId();questions=generateSet();current=0;totalSeconds=0;questionSeconds=0;correctCount=0;pendingCoins=0;settled=false;started=true;finished=false;saveProgress();renderPendingCoins();$("startScreen").classList.add("hidden");$("results").style.display="none";$("quizCard").classList.remove("hidden");$("progressArea").classList.remove("hidden");$("tips").classList.add("hidden");$("totalTimer").textContent="00:00";renderQuestion();timerHandle=setInterval(tick,1000)}
+function finishQuiz(){const bonus=completionBonus(),totalAward=pendingCoins+bonus;questions[current].seconds=questionSeconds;if(!settled){if(totalAward>0){const result=GAME.awardCoins(totalAward,"數學練習完成結算",`${challengeId}:completion`);if(!result.ok){$("feedback").innerHTML='<div class="feedback bad">金幣結算暫時失敗，請勿關閉頁面，稍後重試。</div>';return}}settled=true}finished=true;started=false;if(timerHandle)clearInterval(timerHandle);saveProgress();renderWallet();const wrong=questions.filter(q=>q.wrongEver).length,abandoned=questions.filter(q=>q.abandoned).length;$("quizCard").classList.add("hidden");$("progressArea").classList.add("hidden");$("results").style.display="block";$("finalCorrect").textContent=`${correctCount} / ${TOTAL}`;$("finalWrong").textContent=`${wrong} 題`;$("finalAbandoned").textContent=`${abandoned} 題`;$("finalTime").textContent=formatTime(totalSeconds);$("resultMessage").textContent=`你完成了 ${TOTAL} 題，其中 ${wrong} 題曾經答錯、${abandoned} 題放棄。本次獲得 ${pendingCoins} 金幣${bonus?`，全對額外獎勵 ${bonus} 金幣`:""}，總入帳 ${totalAward} 金幣。`;const list=$("wrongList");list.innerHTML="";const missed=questions.map((q,i)=>({...q,index:i+1})).filter(q=>q.wrongEver||q.abandoned);if(!missed.length)list.innerHTML='<div class="emptywrong">本次沒有答錯的題目。</div>';else{const ol=document.createElement("ol");missed.forEach(q=>{const li=document.createElement("li");li.textContent=`第 ${q.index} 題：${q.dividend} ÷ ${q.divisor} = ${q.quotient} 餘 ${q.remainder}${q.abandoned?"（放棄）":""}`;ol.appendChild(li)});list.appendChild(ol)}$("tips").classList.remove("hidden")}
+function downloadCsv(){const rows=[["題號","被除數","除數","商","乘積","餘數","是否曾經答錯","是否放棄","答對獲得金幣"],...questions.map((q,i)=>[i+1,q.dividend,q.divisor,q.quotient,q.product,q.remainder,q.wrongEver?"是":"否",q.abandoned?"是":"否",q.rewardAmount||0]),[],["總題數",TOTAL],["全對額外獎勵",completionBonus()],["本次總入帳",pendingCoins+completionBonus()],["答對題數",correctCount]];const csv="\ufeff"+rows.map(row=>row.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\r\n"),blob=new Blob([csv],{type:"text/csv;charset=utf-8;"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="兩位數除法作答紀錄.csv";a.click();URL.revokeObjectURL(url)}
+$("startButton").addEventListener("click",startQuiz);$("check").addEventListener("click",checkAnswer);$("next").addEventListener("click",nextQuestion);$("clear").addEventListener("click",()=>{const q=questions[current];q.answers=Array(String(q.quotient).length).fill("");q.productAnswers=["",""];q.remainderAnswer="";[...$("quotientRow").querySelectorAll("input"),...$("productRow").querySelectorAll("input")].forEach(i=>i.value="");$("remainderInput").value="";$("feedback").innerHTML="";updateCheck();saveProgress();$("quotientRow").querySelector("input")?.focus()});
+$("showAnswer").addEventListener("click",()=>$("abandonQuestionDialog").showModal());$("confirmAbandonQuestion").addEventListener("click",event=>{event.preventDefault();$("abandonQuestionDialog").close();const q=questions[current];if(!q||q.solved||q.revealed)return;pendingCoins=Math.max(0,pendingCoins-2);q.revealed=true;q.abandoned=true;q.answers=String(q.quotient).split("");q.productAnswers=String(q.product).padStart(2,"0").split("");q.remainderAnswer=String(q.remainder);renderQuestion();saveProgress();renderPendingCoins();$("feedback").innerHTML=`<div class="feedback bad">本題已放棄；本次暫得金幣減至 ${pendingCoins} 枚。答案：${q.dividend} ÷ ${q.divisor} = ${q.quotient}；${q.divisor} × ${q.quotient} = ${q.product}；餘 ${q.remainder}。</div>`;$("check").disabled=true;$("next").disabled=false;$("showAnswer").disabled=true;[...$("quotientRow").querySelectorAll("input"),...$("productRow").querySelectorAll("input")].forEach(i=>i.disabled=true);$("remainderInput").disabled=true});
+$("abandonQuiz").addEventListener("click",()=>{if(!challengeId||!started)return;$("abandonCoinAmount").textContent=String(pendingCoins);$("abandonDialog").showModal()});$("confirmAbandon").addEventListener("click",event=>{event.preventDefault();if(timerHandle)clearInterval(timerHandle);GAME.clearPracticeProgress(PRACTICE_ID);$("abandonDialog").close();challengeId=null;questions=[];current=0;pendingCoins=0;settled=false;started=false;finished=false;correctCount=0;$("quizCard").classList.add("hidden");$("progressArea").classList.add("hidden");$("startScreen").classList.remove("hidden");$("tips").classList.add("hidden");$("score").textContent=`0 / ${TOTAL}`;renderPendingCoins()});
+$("restart").addEventListener("click",()=>{GAME.clearPracticeProgress(PRACTICE_ID);challengeId=null;questions=[];started=false;finished=false;$("startScreen").classList.remove("hidden");$("results").style.display="none";$("tips").classList.add("hidden");$("score").textContent=`0 / ${TOTAL}`});$("downloadCsv").addEventListener("click",downloadCsv);
+function restoreProgress(){
+  const saved=GAME.getPracticeProgress(PRACTICE_ID);
+  if(!saved||![3,4].includes(saved.version)||!Array.isArray(saved.questions))return;
+  const savedTotal=saved.totalQuestions;
+  if(![10,20,50].includes(savedTotal)||saved.questions.length!==savedTotal||!Number.isInteger(saved.current)||saved.current<0||saved.current>=savedTotal)return;
+  TOTAL=savedTotal;updateCount();challengeId=saved.challengeId;questions=saved.questions;
+  let migrated=false;
+  questions=questions.map(q=>{
+    const quotient=Number(q.quotient);
+    if(Number.isInteger(quotient)&&quotient>=1&&quotient<=9)return q;
+    if(q.solved||q.abandoned)return q;
+    const replacement=generateQuestion();
+    replacement.wrongEver=Boolean(q.wrongEver);replacement.seconds=Number(q.seconds)||0;
+    migrated=true;return replacement;
+  });
+  const isOpen=q=>!q.solved&&!q.abandoned;
+  let restoredCurrent=saved.current;
+  if(!isOpen(questions[restoredCurrent])){
+    restoredCurrent=questions.findIndex((q,index)=>index>=saved.current&&isOpen(q));
+    if(restoredCurrent<0)restoredCurrent=questions.findIndex(isOpen);
+  }
+  const allComplete=restoredCurrent<0;
+  current=allComplete?TOTAL-1:restoredCurrent;
+  totalSeconds=saved.totalSeconds||0;
+  questionSeconds=current===saved.current&&!migrated?(saved.questionSeconds||0):(questions[current].seconds||0);
+  correctCount=saved.correctCount||0;pendingCoins=saved.pendingCoins||0;settled=Boolean(saved.settled);started=Boolean(saved.started);finished=Boolean(saved.finished);renderPendingCoins();
+  if(finished){GAME.clearPracticeProgress(PRACTICE_ID);return}
+  if(!started)return;
+  $("startScreen").classList.add("hidden");$("quizCard").classList.remove("hidden");$("progressArea").classList.remove("hidden");$("tips").classList.add("hidden");$("totalTimer").textContent=formatTime(totalSeconds);
+  if(allComplete){finishQuiz();return}
+  renderQuestion();if(migrated||current!==saved.current)saveProgress();timerHandle=setInterval(tick,1000);
+}
+window.addEventListener("storage",event=>{if(event.key?.includes("stage3")){renderWallet();renderCompanion()}});updateCount();renderWallet();renderCompanion();restoreProgress();
+</script>
+</body>
+</html>
+
+
+
+
+
+
